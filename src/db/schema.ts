@@ -99,6 +99,12 @@ export const activityEnum = pgEnum("activity_enum", [
 
 export const genderEnum = pgEnum("gender_enum", ["male", "female"]);
 
+export const fitness_goal = pgEnum("fitness_goal", [
+  "lose_weight",
+  "gain_muscle",
+  "maintain_weight",
+])
+
 export const userHealthInfo = pgTable("user_health_info", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
   userId: uuid("user_id")
@@ -107,9 +113,12 @@ export const userHealthInfo = pgTable("user_health_info", {
   weight: doublePrecision("weight").default(0),
   age: integer("age").default(0),
   gender: genderEnum().default("male"),
+  weightPounds: boolean("weight_pounds").default(false),
+  heightInches: boolean("height_inches").default(false),
   height: doublePrecision("height").default(0),
   calories: integer("calories").default(0),
   activityLevel: activityEnum(),
+  fitnessGoal: fitness_goal().default("maintain_weight"),
 });
 
 export const activityKind = pgEnum("activity_kind", [
@@ -119,9 +128,9 @@ export const activityKind = pgEnum("activity_kind", [
 
 export const activity = pgTable("activity", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
-  userId: uuid("user_id")
+  userHealthId: uuid("user_health_id")
     .notNull()
-    .references(() => userTable.id),
+    .references(() => userHealthInfo.id),
   activity: activityKind(),
   weight: doublePrecision("weight_used"),
   duration: doublePrecision("activity_duration"),
@@ -134,13 +143,36 @@ export const activity = pgTable("activity", {
   }),
 });
 
+
+type foodSizeWithId = { id: string, size: number }
+
+export const dailyHealthInfo = pgTable("daily_health_info", {
+  id: uuid("id").defaultRandom().primaryKey().unique(),
+  userHealthId: uuid("user_health_id")
+    .notNull()
+    .references(() => userHealthInfo.id),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+    mode: "date",
+  }),
+
+  breakfast: text("breakfast").array().references(() => food.id).$type<foodSizeWithId[]>(),
+  firstSnack: text("first_snack").array().references(() => food.id).$type<foodSizeWithId[]>(),
+  lunch: text("lunch").array().references(() => food.id).$type<foodSizeWithId[]>(),
+  secondSnack: text("second_snack").array().references(() => food.id).$type<foodSizeWithId[]>(),
+  dinner: text("dinner").array().references(() => food.id).$type<foodSizeWithId[]>(),
+  secondDinner: text("second_dinner").array().references(() => food.id).$type<foodSizeWithId[]>(),
+
+  activity: text("activity").array().references(() => activity.id),
+})
+
 export const food = pgTable("food", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
   foodName: text("food_name").notNull(),
   foodSize: doublePrecision("food_size").notNull(),
-  userId: uuid("user_id")
+  userHealthId: uuid("user_health_id")
     .notNull()
-    .references(() => userTable.id),
+    .references(() => userHealthInfo.id),
 
   calories100G: integer("calories_100g").notNull(),
   protein100G: integer("protein_100g").notNull(),

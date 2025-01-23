@@ -23,6 +23,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "../ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { createUserHealth } from "@/lib/actions/UserHealthActions";
+import { useRouter } from "next/navigation";
 
 const museoModerno = MuseoModerno({
   subsets: ["latin"],
@@ -60,12 +62,12 @@ export default function CustomField({
 }
 
 export const formSchema = z.object({
-  weight: z.number().nonnegative().optional(),
-  weightPounds: z.boolean().optional(),
-  height: z.number().nonnegative().optional(),
-  heightInches: z.boolean().optional(),
-  age: z.number().nonnegative().max(120).optional(),
-  gender: z.enum(["male", "female"]).optional(),
+  weight: z.coerce.number().nonnegative(),
+  weightPounds: z.coerce.boolean(),
+  height: z.coerce.number().nonnegative(),
+  heightInches: z.coerce.boolean(),
+  age: z.coerce.number().nonnegative().max(120),
+  gender: z.enum(["male", "female"]),
   activityLevel: z
     .enum([
       "sedentary",
@@ -73,10 +75,16 @@ export const formSchema = z.object({
       "moderately_active",
       "very_active",
       "extremely_active",
+    ]),
+  calories: z.coerce.number().nonnegative(),
+  fitnessGoal: z
+    .enum([
+      "lose_weight",
+      "gain_muscle",
+      "maintain_weight",
     ])
-    .optional(),
-  calories: z.number().nonnegative().optional(),
 });
+
 
 export function UserHealthForm() {
   const [caloriesCustom, setCaloriesCustom] = React.useState(false);
@@ -93,10 +101,143 @@ export function UserHealthForm() {
       heightInches: false,
       weightPounds: false,
       calories: 0,
+      fitnessGoal: "maintain_weight",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {}
+  const router = useRouter();
+
+  function calculateCalories() {
+    const age = form.getValues("age");
+    const height = form.getValues("height");
+    const isHeightInches = form.getValues("heightInches");
+    const weight = form.getValues("weight");
+    const isWeightPounds = form.getValues("weightPounds");
+    const gender = form.getValues("gender");
+    const activityLevel = form.getValues("activityLevel");
+
+    if (!height || height === 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid height",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!weight || weight === 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid weight",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!age || age === 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid age",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!gender) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid gender",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isHeightInches === undefined || isHeightInches === null) {
+      toast({
+        title: "Error",
+        description: "Please enter valid height units",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (isWeightPounds === undefined || isWeightPounds === null) {
+      toast({
+        title: "Error",
+        description: "Please enter valid weight units",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const activityLevelMultiplier = {
+      sedentary: 1.2,
+      lightly_active: 1.375,
+      moderately_active: 1.55,
+      very_active: 1.725,
+      extremely_active: 1.9,
+    };
+
+    if (!activityLevel) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid activity level",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    form.setValue(
+      "calories",
+      gender === "male"
+        ? Math.floor(
+            (10 * (isWeightPounds ? weight * 2.205 : weight) +
+              6.25 * (isHeightInches ? height * 2.54 : height) -
+              5 * age +
+              5) *
+              activityLevelMultiplier[activityLevel],
+          )
+        : Math.floor(
+            (10 * (isWeightPounds ? weight * 2.205 : weight) +
+              6.25 * (isHeightInches ? height * 2.54 : height) -
+              5 * age -
+              161) *
+              activityLevelMultiplier[activityLevel],
+          ),
+    );
+
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const formData = new FormData();
+
+      if (values.calories === 0) {
+        toast({
+          title: "Error",
+          description: "Please enter a valid calorie count",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      formData.append("weight", values.weight.toString());
+      formData.append("height", values.height.toString());
+      formData.append("age", values.age.toString());
+      formData.append("gender", values.gender);
+      formData.append("activityLevel", values.activityLevel);
+      formData.append("calories", values.calories.toString());
+      formData.append("weightPounds", values.weightPounds.toString());
+      formData.append("heightInches", values.heightInches.toString());
+      formData.append("fitnessGoal", values.fitnessGoal);
+      const userHealth = await createUserHealth(formData);
+      if (userHealth?.error) {
+        console.log(userHealth?.error);
+      } else {
+        form.reset();
+        router.push("/main/dashboard");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   return (
     <Form {...form}>
@@ -226,6 +367,29 @@ export function UserHealthForm() {
             />
           )}
         />
+        <CustomField
+          control={form.control}
+          className="w-full"
+          name="fitnessGoal"
+          formLabel={"Fitness goal"}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger className="px-1 rounded bg-main-background-100 shadow border border-main-accent-100">
+                <SelectValue placeholder="Select fitness goal" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem defaultChecked value="maintain_weight">
+            Maintain weight
+                </SelectItem>
+                <SelectItem value="gain_muscle">Gain muscle</SelectItem>
+                <SelectItem value="lose_weight">
+                  Lose weight
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
+
         <div className="flex items-center gap-4 justify-start w-full">
           <Label className="">Fill custom calories </Label>
           <Switch
@@ -249,114 +413,21 @@ export function UserHealthForm() {
             />
           )}
         />
+        <div className="flex gap-4 sm:flex-row flex-col">
         <Button
-          onClick={() => {
-            const age = form.getValues("age");
-            const height = form.getValues("height");
-            const isHeightInches = form.getValues("heightInches");
-            const weight = form.getValues("weight");
-            const isWeightPounds = form.getValues("weightPounds");
-            const gender = form.getValues("gender");
-            const activityLevel = form.getValues("activityLevel");
-
-            if (!height || height === 0) {
-              toast({
-                title: "Error",
-                description: "Please enter a valid height",
-                variant: "destructive",
-              });
-              return;
-            }
-            if (!weight || weight === 0) {
-              toast({
-                title: "Error",
-                description: "Please enter a valid weight",
-                variant: "destructive",
-              });
-              return;
-            }
-            if (!age || age === 0) {
-              toast({
-                title: "Error",
-                description: "Please enter a valid age",
-                variant: "destructive",
-              });
-              return;
-            }
-
-            if (!gender) {
-              toast({
-                title: "Error",
-                description: "Please enter a valid gender",
-                variant: "destructive",
-              });
-              return;
-            }
-
-            if (isHeightInches === undefined || isHeightInches === null) {
-              toast({
-                title: "Error",
-                description: "Please enter valid height units",
-                variant: "destructive",
-              });
-              return;
-            }
-            if (isWeightPounds === undefined || isWeightPounds === null) {
-              toast({
-                title: "Error",
-                description: "Please enter valid weight units",
-                variant: "destructive",
-              });
-              return;
-            }
-
-            const activityLevelMultiplier = {
-              sedentary: 1.2,
-              lightly_active: 1.375,
-              moderately_active: 1.55,
-              very_active: 1.725,
-              extremely_active: 1.9,
-            };
-
-            if (!activityLevel) {
-              toast({
-                title: "Error",
-                description: "Please enter a valid activity level",
-                variant: "destructive",
-              });
-              return;
-            }
-
-            form.setValue(
-              "calories",
-              gender === "male"
-                ? Math.floor(
-                    (10 * (isWeightPounds ? weight * 2.205 : weight) +
-                      6.25 * (isHeightInches ? height * 2.54 : height) -
-                      5 * age +
-                      5) *
-                      activityLevelMultiplier[activityLevel],
-                  )
-                : Math.floor(
-                    (10 * (isWeightPounds ? weight * 2.205 : weight) +
-                      6.25 * (isHeightInches ? height * 2.54 : height) -
-                      5 * age -
-                      161) *
-                      activityLevelMultiplier[activityLevel],
-                  ),
-            );
-          }}
-          className="bg-main-background-300 px-10 font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-lg shadow"
+          onClick={calculateCalories}
+          className="bg-main-background-300 px-10 font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-md shadow"
           type="button"
         >
           Count calories
         </Button>
         <Button
-          className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-lg shadow`}
+          className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-md shadow`}
           type="submit"
         >
           Write health
         </Button>
+      </div> 
       </form>
     </Form>
   );

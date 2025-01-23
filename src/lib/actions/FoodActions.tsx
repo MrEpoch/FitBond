@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { food } from "@/db/schema";
+import { food, userHealthInfo } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -54,6 +54,16 @@ export async function createFood(formData: FormData) {
       return { error: "Unauthorized", code: 401 };
     }
 
+    const userHealth = await db
+      .select()
+      .from(userHealthInfo)
+      .where(eq(userHealthInfo.userId, user.id))
+      .limit(1)
+      .execute();
+    if (userHealth.length === 0) {
+      return { error: "User health info not found", code: 404 };
+    }
+
     const parsedFormData = Object.fromEntries(formData.entries());
 
     const validatedData = createFormSchema.safeParse(parsedFormData);
@@ -74,7 +84,7 @@ export async function createFood(formData: FormData) {
     } = validatedData.data;
 
     await db.insert(food).values({
-      userId: user.id,
+      userHealthId: userHealth[0].id,
       foodName: foodName,
       foodSize: foodSize,
       calories100G: calories100G,
@@ -99,6 +109,17 @@ export async function updateFood(formData: FormData, id: string) {
     if (!user || !session) {
       return { error: "Unauthorized", code: 401 };
     }
+
+    const userHealth = await db
+      .select()
+      .from(userHealthInfo)
+      .where(eq(userHealthInfo.userId, user.id))
+      .limit(1)
+      .execute();
+    if (userHealth.length === 0) {
+      return { error: "User health info not found", code: 404 };
+    }
+
 
     const parsedFormData = Object.fromEntries(formData.entries());
     const id_val = z.string().max(36).safeParse(id);
@@ -137,7 +158,7 @@ export async function updateFood(formData: FormData, id: string) {
         sugar100G: sugar100G,
         fats100G: fats100G,
       })
-      .where(and(eq(food.id, id_val.data), eq(food.userId, user.id)));
+      .where(and(eq(food.id, id_val.data), eq(food.userHealthId, userHealth[0].id)));
 
     revalidatePath("/main/dashboard");
   } catch (e) {
@@ -159,7 +180,18 @@ export async function deleteFood(id: string) {
       return { error: "Invalid data", code: 400 };
     }
 
-    await db.delete(food).where(and(eq(food.id, id), eq(food.userId, user.id)));
+    const userHealth = await db
+      .select()
+      .from(userHealthInfo)
+      .where(eq(userHealthInfo.userId, user.id))
+      .limit(1)
+      .execute();
+    if (userHealth.length === 0) {
+      return { error: "User health info not found", code: 404 };
+    }
+
+
+    await db.delete(food).where(and(eq(food.id, id), eq(food.userHealthId, userHealth[0].id)));
     revalidatePath("/main/dashboard");
   } catch (e) {
     return { error: "Server error", code: 500 };
@@ -180,10 +212,21 @@ export async function getFood(id: string) {
       return { error: "Invalid data", code: 400 };
     }
 
+    const userHealth = await db
+      .select()
+      .from(userHealthInfo)
+      .where(eq(userHealthInfo.userId, user.id))
+      .limit(1)
+      .execute();
+    if (userHealth.length === 0) {
+      return { error: "User health info not found", code: 404 };
+    }
+
+
     const one_food = await db
       .select()
       .from(food)
-      .where(and(eq(food.id, id_val.data), eq(food.userId, user.id)));
+      .where(and(eq(food.id, id_val.data), eq(food.userHealthId, userHealth[0].id)));
 
     return one_food;
   } catch (e) {
@@ -199,11 +242,22 @@ export async function getFoods(count = 25, offset = 0, orderBy = "date") {
       return { error: "Unauthorized", code: 401 };
     }
 
+    const userHealth = await db
+      .select()
+      .from(userHealthInfo)
+      .where(eq(userHealthInfo.userId, user.id))
+      .limit(1)
+      .execute();
+    if (userHealth.length === 0) {
+      return { error: "User health info not found", code: 404 };
+    }
+
+
     const foods = await db
       .select()
       .from(food)
       .orderBy(food.createdAt)
-      .where(eq(food.userId, user.id))
+      .where(eq(food.userHealthId, userHealth[0].id))
       .limit(count)
       .offset(offset);
     return foods;
