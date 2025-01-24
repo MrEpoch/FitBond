@@ -8,7 +8,9 @@ export default function page() {
         <h1 className="text-3xl font-bold bg-main-100 rounded-xl p-4">
           Fill in your health profile
         </h1>
-        <p className="text-lg text-main-text-100">We will use this to calculate your BMI</p>
+        <p className="text-lg text-main-text-100">
+          We will use this to calculate your BMI
+        </p>
         <div className="bg-main-background-200 max-w-[450px] shadow-lg rounded border border-black w-full">
           <UserHealthForm />
         </div>

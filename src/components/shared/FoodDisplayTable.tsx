@@ -21,7 +21,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export default function FoodDisplayTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {

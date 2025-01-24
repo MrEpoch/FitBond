@@ -120,7 +120,6 @@ export async function updateFood(formData: FormData, id: string) {
       return { error: "User health info not found", code: 404 };
     }
 
-
     const parsedFormData = Object.fromEntries(formData.entries());
     const id_val = z.string().max(36).safeParse(id);
 
@@ -158,7 +157,9 @@ export async function updateFood(formData: FormData, id: string) {
         sugar100G: sugar100G,
         fats100G: fats100G,
       })
-      .where(and(eq(food.id, id_val.data), eq(food.userHealthId, userHealth[0].id)));
+      .where(
+        and(eq(food.id, id_val.data), eq(food.userHealthId, userHealth[0].id)),
+      );
 
     revalidatePath("/main/dashboard");
   } catch (e) {
@@ -190,8 +191,9 @@ export async function deleteFood(id: string) {
       return { error: "User health info not found", code: 404 };
     }
 
-
-    await db.delete(food).where(and(eq(food.id, id), eq(food.userHealthId, userHealth[0].id)));
+    await db
+      .delete(food)
+      .where(and(eq(food.id, id), eq(food.userHealthId, userHealth[0].id)));
     revalidatePath("/main/dashboard");
   } catch (e) {
     return { error: "Server error", code: 500 };
@@ -222,11 +224,12 @@ export async function getFood(id: string) {
       return { error: "User health info not found", code: 404 };
     }
 
-
     const one_food = await db
       .select()
       .from(food)
-      .where(and(eq(food.id, id_val.data), eq(food.userHealthId, userHealth[0].id)));
+      .where(
+        and(eq(food.id, id_val.data), eq(food.userHealthId, userHealth[0].id)),
+      );
 
     return one_food;
   } catch (e) {
@@ -251,7 +254,6 @@ export async function getFoods(count = 25, offset = 0, orderBy = "date") {
     if (userHealth.length === 0) {
       return { error: "User health info not found", code: 404 };
     }
-
 
     const foods = await db
       .select()

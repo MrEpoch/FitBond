@@ -53,11 +53,43 @@ export default function CustomField({
 }
 
 export const formSchema = z.object({
-  activityKind: z.enum(["movement", "weight_based"]),
-  weight: z.coerce.number().nonnegative().optional(),
-  duration: z.coerce.number().nonnegative().optional(),
-  repetitions: z.coerce.number().nonnegative().optional(),
-  sets: z.coerce.number().nonnegative().optional(),
+  breakfast: z.array(
+    z.object({
+      size: z.number().positive(),
+      id: z.string().length(36),
+    }),
+  ),
+  firstSnack: z.array(
+    z.object({
+      size: z.number().positive(),
+      id: z.string().length(36),
+    }),
+  ),
+  lunch: z.array(
+    z.object({
+      size: z.number().positive(),
+      id: z.string().length(36),
+    }),
+  ),
+  secondSnack: z.array(
+    z.object({
+      size: z.number().positive(),
+      id: z.string().length(36),
+    }),
+  ),
+  dinner: z.array(
+    z.object({
+      size: z.number().positive(),
+      id: z.string().length(36),
+    }),
+  ),
+  secondDinner: z.array(
+    z.object({
+      size: z.number().positive(),
+      id: z.string().length(36),
+    }),
+  ),
+  activity: z.array(z.string().length(36)),
 });
 
 export function ActivityForm({ hideModal }) {
@@ -65,22 +97,26 @@ export function ActivityForm({ hideModal }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      activityKind: "movement",
-      weight: 0,
-      sets: 0,
-      repetitions: 0,
-      duration: 0,
+      breakfast: [],
+      firstSnack: [],
+      lunch: [],
+      secondSnack: [],
+      dinner: [],
+      secondDinner: [],
+      activity: [],
     },
   });
 
   async function submitLogic(values: z.infer<typeof formSchema>) {
     try {
       const formData = new FormData();
-      formData.append("activityKind", values.activityKind);
-      formData.append("weight", values.weight?.toString() ?? "0");
-      formData.append("sets", values.sets?.toString() ?? "0");
-      formData.append("repetitions", values.repetitions?.toString() ?? "0");
-      formData.append("duration", values.duration?.toString() ?? "0");
+      formData.append("breakfast", JSON.stringify(values.breakfast));
+      formData.append("firstSnack", JSON.stringify(values.firstSnack));
+      formData.append("lunch", JSON.stringify(values.lunch));
+      formData.append("secondSnack", JSON.stringify(values.secondSnack));
+      formData.append("dinner", JSON.stringify(values.dinner));
+      formData.append("secondDinner", JSON.stringify(values.secondDinner));
+      formData.append("activity", JSON.stringify(values.activity));
       const activity = await createActivity(formData);
       if (activity?.error) {
         console.log(activity?.error);
@@ -93,8 +129,6 @@ export function ActivityForm({ hideModal }) {
     }
   }
 
-  const activityKind = form.watch("activityKind");
-
   return (
     <Form {...form}>
       <form
@@ -104,85 +138,18 @@ export function ActivityForm({ hideModal }) {
         <CustomField
           control={form.control}
           className="w-full"
-          name="activityKind"
-          formLabel={"Select activity kind: "}
+          name=""
+          formLabel={"Weight used"}
           render={({ field }) => (
-            <Select defaultValue={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className="px-1 rounded bg-main-background-100 shadow border border-main-accent-100">
-                <SelectValue placeholder="Select activity kind: " />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="movement">Movement</SelectItem>
-                <SelectItem value="weight_based">Weight based</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              step={0.01}
+              type="number"
+              className="bg-main-background-100 shadow border border-main-accent-100"
+              value={field.value}
+              {...field}
+            />
           )}
         />
-        {activityKind === "weight_based" ? (
-          <>
-            <CustomField
-              control={form.control}
-              className="w-full"
-              name="weight"
-              formLabel={"Weight used"}
-              render={({ field }) => (
-                <Input
-                  step={0.01}
-                  type="number"
-                  className="bg-main-background-100 shadow border border-main-accent-100"
-                  value={field.value}
-                  {...field}
-                />
-              )}
-            />
-            <div className="flex gap-2">
-              <CustomField
-                control={form.control}
-                className="w-full"
-                name="sets"
-                formLabel={"Sets"}
-                render={({ field }) => (
-                  <Input
-                    type="number"
-                    className="bg-main-background-100 shadow border border-main-accent-100"
-                    value={field.value}
-                    {...field}
-                  />
-                )}
-              />
-              <CustomField
-                control={form.control}
-                className="w-full"
-                name="repetitions"
-                formLabel={"Repetitions"}
-                render={({ field }) => (
-                  <Input
-                    type="number"
-                    className="bg-main-background-100 shadow border border-main-accent-100"
-                    value={field.value}
-                    {...field}
-                  />
-                )}
-              />
-            </div>
-          </>
-        ) : (
-          <CustomField
-            control={form.control}
-            name="duration"
-            className="w-full"
-            formLabel={"Activity duration"}
-            render={({ field }) => (
-              <Input
-                type="number"
-                step={0.01}
-                className="bg-main-background-100 shadow border border-main-accent-100"
-                value={field.value}
-                {...field}
-              />
-            )}
-          />
-        )}
         <Button
           disabled={pending}
           className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-lg shadow`}

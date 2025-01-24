@@ -1,4 +1,3 @@
-
 "use client";
 import React from "react";
 import {
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { ActivityForm } from "@/components/shared/ActivityForm";
 import { Button } from "../ui/button";
+import FoodDisplayTable from "./FoodDisplayTable";
 
 export default function DashboardWriteDayModal() {
   const [showingModal, setShowingModal] = React.useState(false);
@@ -28,7 +28,7 @@ export default function DashboardWriteDayModal() {
           <DialogTitle>Add activity</DialogTitle>
         </DialogHeader>
         <div className="h-full">
-          <ActivityForm hideModal={hideModal} />
+          <FoodDisplayTable />
         </div>
       </DialogContent>
     </Dialog>

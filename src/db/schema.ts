@@ -11,6 +11,7 @@ import {
   integer,
   pgEnum,
   doublePrecision,
+  date,
 } from "drizzle-orm/pg-core";
 
 export const bytea = customType<{ data: Uint8Array }>({
@@ -103,7 +104,7 @@ export const fitness_goal = pgEnum("fitness_goal", [
   "lose_weight",
   "gain_muscle",
   "maintain_weight",
-])
+]);
 
 export const userHealthInfo = pgTable("user_health_info", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
@@ -143,8 +144,7 @@ export const activity = pgTable("activity", {
   }),
 });
 
-
-type foodSizeWithId = { id: string, size: number }
+type foodSizeWithId = { id: string; size: number };
 
 export const dailyHealthInfo = pgTable("daily_health_info", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
@@ -156,15 +156,36 @@ export const dailyHealthInfo = pgTable("daily_health_info", {
     mode: "date",
   }),
 
-  breakfast: text("breakfast").array().references(() => food.id).$type<foodSizeWithId[]>(),
-  firstSnack: text("first_snack").array().references(() => food.id).$type<foodSizeWithId[]>(),
-  lunch: text("lunch").array().references(() => food.id).$type<foodSizeWithId[]>(),
-  secondSnack: text("second_snack").array().references(() => food.id).$type<foodSizeWithId[]>(),
-  dinner: text("dinner").array().references(() => food.id).$type<foodSizeWithId[]>(),
-  secondDinner: text("second_dinner").array().references(() => food.id).$type<foodSizeWithId[]>(),
+  dayDate: date("day_date").notNull(),
+  breakfast: text("breakfast")
+    .array()
+    .references(() => food.id)
+    .$type<foodSizeWithId[]>(),
+  firstSnack: text("first_snack")
+    .array()
+    .references(() => food.id)
+    .$type<foodSizeWithId[]>(),
+  lunch: text("lunch")
+    .array()
+    .references(() => food.id)
+    .$type<foodSizeWithId[]>(),
+  secondSnack: text("second_snack")
+    .array()
+    .references(() => food.id)
+    .$type<foodSizeWithId[]>(),
+  dinner: text("dinner")
+    .array()
+    .references(() => food.id)
+    .$type<foodSizeWithId[]>(),
+  secondDinner: text("second_dinner")
+    .array()
+    .references(() => food.id)
+    .$type<foodSizeWithId[]>(),
 
-  activity: text("activity").array().references(() => activity.id),
-})
+  activity: text("activity")
+    .array()
+    .references(() => activity.id),
+});
 
 export const food = pgTable("food", {
   id: uuid("id").defaultRandom().primaryKey().unique(),

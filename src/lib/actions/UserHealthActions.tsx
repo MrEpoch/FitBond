@@ -14,23 +14,16 @@ const createFormSchema = z.object({
   heightInches: z.coerce.boolean(),
   age: z.coerce.number().nonnegative().max(120),
   gender: z.enum(["male", "female"]),
-  activityLevel: z
-    .enum([
-      "sedentary",
-      "lightly_active",
-      "moderately_active",
-      "very_active",
-      "extremely_active",
-    ]),
+  activityLevel: z.enum([
+    "sedentary",
+    "lightly_active",
+    "moderately_active",
+    "very_active",
+    "extremely_active",
+  ]),
   calories: z.coerce.number().nonnegative(),
-  fitnessGoal: z
-    .enum([
-      "lose_weight",
-      "gain_muscle",
-      "maintain_weight",
-    ])
+  fitnessGoal: z.enum(["lose_weight", "gain_muscle", "maintain_weight"]),
 });
-
 
 export async function createUserHealth(formData: FormData) {
   try {
@@ -46,8 +39,17 @@ export async function createUserHealth(formData: FormData) {
       return { error: "Invalid data", code: 400 };
     }
 
-    const { fitnessGoal, weight, height, age, gender, activityLevel, calories, weightPounds, heightInches } =
-      validatedData.data;
+    const {
+      fitnessGoal,
+      weight,
+      height,
+      age,
+      gender,
+      activityLevel,
+      calories,
+      weightPounds,
+      heightInches,
+    } = validatedData.data;
 
     await db.insert(userHealthInfo).values({
       fitnessGoal: fitnessGoal,
@@ -71,7 +73,6 @@ export async function createUserHealth(formData: FormData) {
 
 export async function updateUserHealth(formData: FormData, id: string) {
   try {
-
     const { user, session } = await getCurrentSession();
     if (!user || !session) {
       return { error: "Unauthorized", code: 401 };
@@ -89,8 +90,16 @@ export async function updateUserHealth(formData: FormData, id: string) {
       return { error: "Invalid data", code: 400 };
     }
 
-    const { weight, height, age, gender, activityLevel, calories, weightPounds, heightInches } =
-      validatedData.data;
+    const {
+      weight,
+      height,
+      age,
+      gender,
+      activityLevel,
+      calories,
+      weightPounds,
+      heightInches,
+    } = validatedData.data;
 
     await db
       .update(userHealthInfo)
@@ -104,7 +113,12 @@ export async function updateUserHealth(formData: FormData, id: string) {
         activityLevel: activityLevel,
         calories: calories,
       })
-      .where(and(eq(userHealthInfo.id, id_val.data), eq(userHealthInfo.userId, user.id)));
+      .where(
+        and(
+          eq(userHealthInfo.id, id_val.data),
+          eq(userHealthInfo.userId, user.id),
+        ),
+      );
 
     revalidatePath("/main/dashboard");
   } catch (e) {
@@ -114,12 +128,10 @@ export async function updateUserHealth(formData: FormData, id: string) {
 
 export async function deleteUserHealth(id: string) {
   try {
-
     const { user, session } = await getCurrentSession();
     if (!user || !session) {
       return { error: "Unauthorized", code: 401 };
     }
-
 
     const id_val = z.string().max(36).safeParse(id);
 
@@ -127,7 +139,11 @@ export async function deleteUserHealth(id: string) {
       return { error: "Invalid data", code: 400 };
     }
 
-    await db.delete(userHealthInfo).where(and(eq(userHealthInfo.id, id), eq(userHealthInfo.userId, user.id)));
+    await db
+      .delete(userHealthInfo)
+      .where(
+        and(eq(userHealthInfo.id, id), eq(userHealthInfo.userId, user.id)),
+      );
     revalidatePath("/main/dashboard");
   } catch (e) {
     return { error: "Server error", code: 500 };

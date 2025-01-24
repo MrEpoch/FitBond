@@ -4,8 +4,9 @@ import { getUserHealth } from "@/lib/actions/UserHealthActions";
 import { getCurrentSession } from "@/lib/sessionTokens";
 import { redirect } from "next/navigation";
 import React from "react";
-import ChartHealth from "./_sections/Chart";
 import DashboardWriteDayModal from "@/components/shared/DashboardWriteDayModal";
+import { getDaysHealth } from "@/lib/actions/DailyWriteAction";
+import ChartCarousel from "./_sections/ChartCarousel";
 
 export default async function Page() {
   const { user, session } = await getCurrentSession();
@@ -18,7 +19,7 @@ export default async function Page() {
     return redirect("/main/user-health-setup");
   }
 
-  console.log(userHealthProfile);
+  const longTermData = await getDaysHealth();
 
   return (
     <div className="bg-main-background-100 h-view-container">
@@ -26,9 +27,10 @@ export default async function Page() {
         <DashboardActivityModal />
         <DashboardFoodModal />
         <div className="grid grid-cols-2 gap-4 grid-rows-2">
-          <div className="h-32 rounded-lg bg-main-background-300 col-span-2">
-            <ChartHealth fitnessGoal={userHealthProfile?.fitnessGoal} caloriesGoal={userHealthProfile?.calories} />
-          </div>
+          <ChartCarousel
+            userHealthProfile={userHealthProfile}
+            daysHealth={longTermData}
+          />
           <div className="h-32 rounded-lg bg-main-background-300"></div>
           <div className="h-32 rounded-lg bg-main-background-300"></div>
         </div>

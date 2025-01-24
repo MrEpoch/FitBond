@@ -68,23 +68,16 @@ export const formSchema = z.object({
   heightInches: z.coerce.boolean(),
   age: z.coerce.number().nonnegative().max(120),
   gender: z.enum(["male", "female"]),
-  activityLevel: z
-    .enum([
-      "sedentary",
-      "lightly_active",
-      "moderately_active",
-      "very_active",
-      "extremely_active",
-    ]),
+  activityLevel: z.enum([
+    "sedentary",
+    "lightly_active",
+    "moderately_active",
+    "very_active",
+    "extremely_active",
+  ]),
   calories: z.coerce.number().nonnegative(),
-  fitnessGoal: z
-    .enum([
-      "lose_weight",
-      "gain_muscle",
-      "maintain_weight",
-    ])
+  fitnessGoal: z.enum(["lose_weight", "gain_muscle", "maintain_weight"]),
 });
-
 
 export function UserHealthForm() {
   const [caloriesCustom, setCaloriesCustom] = React.useState(false);
@@ -202,7 +195,6 @@ export function UserHealthForm() {
               activityLevelMultiplier[activityLevel],
           ),
     );
-
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -379,12 +371,10 @@ export function UserHealthForm() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem defaultChecked value="maintain_weight">
-            Maintain weight
+                  Maintain weight
                 </SelectItem>
                 <SelectItem value="gain_muscle">Gain muscle</SelectItem>
-                <SelectItem value="lose_weight">
-                  Lose weight
-                </SelectItem>
+                <SelectItem value="lose_weight">Lose weight</SelectItem>
               </SelectContent>
             </Select>
           )}
@@ -414,20 +404,20 @@ export function UserHealthForm() {
           )}
         />
         <div className="flex gap-4 sm:flex-row flex-col">
-        <Button
-          onClick={calculateCalories}
-          className="bg-main-background-300 px-10 font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-md shadow"
-          type="button"
-        >
-          Count calories
-        </Button>
-        <Button
-          className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-md shadow`}
-          type="submit"
-        >
-          Write health
-        </Button>
-      </div> 
+          <Button
+            onClick={calculateCalories}
+            className="bg-main-background-300 px-10 font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-md shadow"
+            type="button"
+          >
+            Count calories
+          </Button>
+          <Button
+            className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-md shadow`}
+            type="submit"
+          >
+            Write health
+          </Button>
+        </div>
       </form>
     </Form>
   );
