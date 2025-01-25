@@ -1,3 +1,4 @@
+"use client";
 export function generateAndFillDates(inputData = []) {
   const result = [];
   const currentDate = new Date();
@@ -11,6 +12,13 @@ export function generateAndFillDates(inputData = []) {
     if (!inputDates.has(dateString)) {
       result.push({
         dayDate: dateString,
+        breakfast: [],
+        firstSnack: [],
+        lunch: [],
+        secondSnack: [],
+        dinner: [],
+        secondDinner: [],
+        activity: [],
       });
     }
   }
@@ -28,6 +36,13 @@ export function generateAndFillDates(inputData = []) {
     if (!inputDates.has(dateString)) {
       result.push({
         dayDate: dateString,
+        breakfast: [],
+        firstSnack: [],
+        lunch: [],
+        secondSnack: [],
+        dinner: [],
+        secondDinner: [],
+        activity: [],
       });
     }
   }

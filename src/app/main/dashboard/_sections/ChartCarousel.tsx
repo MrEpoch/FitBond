@@ -9,19 +9,25 @@ import {
 
 export default function ChartCarousel({ daysHealth, userHealthProfile }) {
   const [daysHealthIndex, setDaysHealthIndex] = React.useState(0);
-  const [daysHealthState, setDaysHealthState] = React.useState(null);
-  const [daysFoods, setDaysFoods] = React.useState(null);
+  const [daysNutrients, setDaysNutrients] = React.useState([]);
 
   useEffect(() => {
     const daysWithDates = generateAndFillDates(daysHealth);
-    setDaysFoods(prepareFoods(dayWithDates));
+    setDaysNutrients(prepareNutrients(daysWithDates));
   }, []);
 
-  console.log(daysHealthState);
+  console.log(daysNutrients[0]);
 
   return (
     <div className="h-32 rounded-lg bg-main-background-300 col-span-2">
       <button className="w-full h-full">Prev</button>
+      {daysNutrients.length > 0 && (
+        <ChartHealth
+          dayNutrients={daysNutrients[daysHealthIndex]}
+          caloriesGoal={userHealthProfile.calories}
+          fitnessGoal={userHealthProfile.fitnessGoal}
+        />
+      )}
       <button className="w-full h-full">next</button>
     </div>
   );

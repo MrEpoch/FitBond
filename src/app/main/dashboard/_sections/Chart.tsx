@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { PolarGrid, RadialBar, RadialBarChart } from "recharts";
 
 import {
@@ -12,18 +11,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
+  ChartTooltipContentNutrients,
 } from "@/components/ui/chart";
-const chartData = [
-  { browser: "chrome", visitors: 5, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 10, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 10, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 10, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 10, fill: "var(--color-other)" },
-];
 
 const nutrientChartConfig = {
   protein: {
@@ -44,76 +35,61 @@ const nutrientChartConfig = {
   },
 };
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
-    color: "hsl(var(--chart-1))",
-  },
-  safari: {
-    label: "Safari",
-    color: "hsl(var(--chart-2))",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "hsl(var(--chart-3))",
-  },
-  edge: {
-    label: "Edge",
-    color: "hsl(var(--chart-4))",
-  },
-  other: {
-    label: "Other",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig;
-
 function getNutrientInfo(caloriesGoal, fitnessGoal, dayNutrients) {
-  const protein =
+  // Calculate the nutrient goals
+  const proteinGoal =
     (fitnessGoal === "weight_loss"
       ? caloriesGoal * 0.35
       : fitnessGoal === "maintain_weight"
         ? caloriesGoal * 0.25
         : caloriesGoal * 0.35) / 4;
-  const fat =
+  const fatGoal =
     (fitnessGoal === "weight_loss"
       ? caloriesGoal * 0.3
       : fitnessGoal === "maintain_weight"
         ? caloriesGoal * 0.3
         : caloriesGoal * 0.45) / 9;
-  const carbs =
+  const carbsGoal =
     (fitnessGoal === "weight_loss"
       ? caloriesGoal * 0.35
       : fitnessGoal === "maintain_weight"
         ? caloriesGoal * 0.45
         : caloriesGoal * 0.25) / 4;
 
-  const maxNutrientValue = Math.max(protein, fat, carbs);
+  // Get today's current nutrients
+  const {
+    protein: proteinCurrent,
+    fat: fatCurrent,
+    carbs: carbsCurrent,
+  } = { protein: 120, carbs: 200, fat: 30 };
 
-  // Scaling factor to fit into a scale of 10
-  const scalingFactor = 10 / maxNutrientValue;
+  // Normalize the current values to a max of 10 based on the goals
+  const maxScale = 10; // Maximum value in the chart
+  const normalizedProtein = (proteinCurrent / proteinGoal) * maxScale;
+  const normalizedFat = (fatCurrent / fatGoal) * maxScale;
+  const normalizedCarbs = (carbsCurrent / carbsGoal) * maxScale;
 
-  // Scale each nutrient value
-  const scaledProtein = protein * scalingFactor;
-  const scaledFat = fat * scalingFactor;
-  const scaledCarbs = carbs * scalingFactor;
-
+  // Prepare data for Recharts
   return [
     {
       nutrient: "protein",
-      goal: scaledProtein - dayNutrients.protein * scalingFactor,
+      chart: normalizedProtein.toFixed(2), // Limit to 2 decimal places
+      goal: proteinGoal.toFixed(2),
+      current: proteinCurrent.toFixed(2),
       fill: "var(--color-protein)",
     },
     {
       nutrient: "fat",
-      goal: scaledFat - dayNutrients.fat * scalingFactor,
+      chart: normalizedFat.toFixed(2),
+      goal: fatGoal.toFixed(2),
+      current: fatCurrent.toFixed(2),
       fill: "var(--color-fat)",
     },
     {
       nutrient: "carbs",
-      goal: scaledCarbs - dayNutrients.carbs * scalingFactor,
+      chart: normalizedCarbs.toFixed(2),
+      goal: carbsGoal.toFixed(2),
+      current: carbsCurrent.toFixed(2),
       fill: "var(--color-carbs)",
     },
   ];
@@ -143,10 +119,12 @@ export default function ChartHealth({
           >
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel nameKey="nutrient" />}
+              content={
+                <ChartTooltipContentNutrients hideLabel nameKey="nutrient" />
+              }
             />
             <PolarGrid gridType="circle" />
-            <RadialBar background dataKey="goal" />
+            <RadialBar background dataKey="chart" />
           </RadialBarChart>
         </ChartContainer>
       </CardContent>

@@ -190,7 +190,6 @@ export const dailyHealthInfo = pgTable("daily_health_info", {
 export const food = pgTable("food", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
   foodName: text("food_name").notNull(),
-  foodSize: doublePrecision("food_size").notNull(),
   userHealthId: uuid("user_health_id")
     .notNull()
     .references(() => userHealthInfo.id),

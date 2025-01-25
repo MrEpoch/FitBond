@@ -225,7 +225,7 @@ export async function getDaysHealth(count = 100, offset = 0) {
     const daysHealth = await db
       .select()
       .from(dailyHealthInfo)
-      .where(eq(dailyHealthInfo.userHealthId, userHealthId))
+      .where(eq(dailyHealthInfo.userHealthId, userHealth[0].id))
       .orderBy(desc(dailyHealthInfo.dayDate))
       .limit(count)
       .offset(offset);
@@ -318,6 +318,7 @@ export async function getDaysHealth(count = 100, offset = 0) {
 
     return daysHealthWithFoods;
   } catch (e) {
+    console.log(e);
     return { error: "Server error", code: 500 };
   }
 }
