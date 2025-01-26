@@ -9,8 +9,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { FoodForm } from "./FoodForm";
+import FoodDisplayTable from "./FoodDisplayTable";
+import { columns, food } from "./FoodTypes";
+import FoodList from "./FoodList";
 
-export default function DashboardFoodModal() {
+export default function DashboardFoodModal({ foodData }: { foodData: food[] }) {
   const [showingModal, setShowingModal] = React.useState(false);
 
   function hideModal() {
@@ -26,8 +29,8 @@ export default function DashboardFoodModal() {
         <DialogHeader>
           <DialogTitle>Add food</DialogTitle>
         </DialogHeader>
-        <div className="h-full">
-          <FoodForm hideModal={hideModal} />
+        <div className="h-full w-full">
+          <FoodList data={foodData} />
         </div>
       </DialogContent>
     </Dialog>

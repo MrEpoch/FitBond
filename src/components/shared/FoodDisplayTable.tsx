@@ -32,8 +32,8 @@ export default function FoodDisplayTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <div className="rounded-md max-w-full min-w-[40px] border h-full max-h-full w-full flex flex-col items-center p-6 space-y-8">
+      <Table className="w-full">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -52,7 +52,7 @@ export default function FoodDisplayTable<TData, TValue>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
+        <TableBody className="w-full">
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow

@@ -7,19 +7,18 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentSession } from "../sessionTokens";
 
+/*
 const createFormSchema = z.object({
   foodName: z
     .string()
     .min(1, { message: "Food name is required" })
     .max(50, { message: "Food name is too long" }),
   foodSize: z.coerce
-    .number()
-    .nonnegative()
-    .min(0, { message: "Food size is required" }),
+    .string()
+    .regex(/^\d+\.?\d*$/),
   calories100G: z.coerce
     .number()
     .nonnegative()
-    .min(0, { message: "Calories is required" }),
   protein100G: z.coerce
     .number()
     .nonnegative()
@@ -200,6 +199,8 @@ export async function deleteFood(id: string) {
   }
 }
 
+  */
+
 export async function getFood(id: string) {
   try {
     const { user, session } = await getCurrentSession();
@@ -232,6 +233,34 @@ export async function getFood(id: string) {
       );
 
     return one_food;
+  } catch (e) {
+    return { error: "Server error", code: 500 };
+  }
+}
+
+export async function getFoodsGlobal(count = 25, offset = 0, orderBy = "date") {
+  try {
+    const foods = await db
+      .select({
+        id: food.id,
+        foodName: food.foodName,
+        protein100G: food.protein100G,
+        calories100G: food.calories100G,
+        fibers100G: food.fibers100G,
+        carbohydrates100G: food.carbohydrates100G,
+        salt100G: food.salt100G,
+        sugar100G: food.sugar100G,
+        fats100G: food.fats100G,
+        fatsSat100G: food.fatsSat100G,
+        fatsMono100G: food.fatsMono100G,
+        fatsPoly100G: food.fatsPoly100G,
+        fatsTran100G: food.fatsTran100G,
+      })
+      .from(food)
+      .orderBy(food.createdAt)
+      .limit(count)
+      .offset(offset);
+    return foods;
   } catch (e) {
     return { error: "Server error", code: 500 };
   }

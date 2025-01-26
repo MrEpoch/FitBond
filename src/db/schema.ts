@@ -190,17 +190,19 @@ export const dailyHealthInfo = pgTable("daily_health_info", {
 export const food = pgTable("food", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
   foodName: text("food_name").notNull(),
-  userHealthId: uuid("user_health_id")
-    .notNull()
-    .references(() => userHealthInfo.id),
+  userHealthId: uuid("user_health_id").references(() => userHealthInfo.id),
 
-  calories100G: integer("calories_100g").notNull(),
-  protein100G: integer("protein_100g").notNull(),
-  fibers100G: integer("fibers_100g").notNull(),
-  carbohydrates100G: integer("carbohydrates_100g").notNull(),
-  salt100G: integer("salt_100g").notNull(),
-  sugar100G: integer("sugar_100g").notNull(),
-  fats100G: integer("fats_100g").notNull(),
+  calories100G: text("calories_100g").notNull(),
+  protein100G: text("protein_100g").notNull(),
+  fibers100G: text("fibers_100g").notNull(),
+  carbohydrates100G: text("carbohydrates_100g").notNull(),
+  salt100G: text("salt_100g").notNull(),
+  sugar100G: text("sugar_100g").notNull(),
+  fats100G: text("fats_100g").notNull(),
+  fatsSat100G: text("fats_sat_100g").notNull(),
+  fatsMono100G: text("fats_mono_100g").notNull(),
+  fatsPoly100G: text("fats_poly_100g").notNull(),
+  fatsTran100G: text("fats_trans_100g").notNull(),
 
   createdAt: timestamp("created_at", {
     withTimezone: true,
