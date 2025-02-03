@@ -1,0 +1,1 @@
+ALTER TABLE "food_timed" ADD COLUMN "food_size" double precision DEFAULT 1;

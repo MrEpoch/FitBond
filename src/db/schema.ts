@@ -12,6 +12,8 @@ import {
   pgEnum,
   doublePrecision,
   date,
+  jsonb,
+  json,
 } from "drizzle-orm/pg-core";
 
 export const bytea = customType<{ data: Uint8Array }>({
@@ -144,7 +146,18 @@ export const activity = pgTable("activity", {
   }),
 });
 
-type foodSizeWithId = { id: string; size: number };
+export const foodTimedTable = pgTable("food_timed", {
+  id: uuid("id").defaultRandom().primaryKey().unique(),
+  foodId: uuid("food_id")
+    .notNull()
+    .references(() => food.id),
+  dayDate: date("day_date").notNull(),
+  foodSize: doublePrecision("food_size").default(1),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+    mode: "date",
+  }),
+});
 
 export const dailyHealthInfo = pgTable("daily_health_info", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
@@ -159,31 +172,32 @@ export const dailyHealthInfo = pgTable("daily_health_info", {
   dayDate: date("day_date").notNull(),
   breakfast: text("breakfast")
     .array()
-    .references(() => food.id)
-    .$type<foodSizeWithId[]>(),
+    .references(() => foodTimedTable.id)
+    .default([]),
   firstSnack: text("first_snack")
     .array()
-    .references(() => food.id)
-    .$type<foodSizeWithId[]>(),
+    .references(() => foodTimedTable.id)
+    .default([]),
   lunch: text("lunch")
     .array()
-    .references(() => food.id)
-    .$type<foodSizeWithId[]>(),
+    .references(() => foodTimedTable.id)
+    .default([]),
   secondSnack: text("second_snack")
     .array()
-    .references(() => food.id)
-    .$type<foodSizeWithId[]>(),
+    .references(() => foodTimedTable.id)
+    .default([]),
   dinner: text("dinner")
     .array()
-    .references(() => food.id)
-    .$type<foodSizeWithId[]>(),
+    .references(() => foodTimedTable.id)
+    .default([]),
   secondDinner: text("second_dinner")
     .array()
-    .references(() => food.id)
-    .$type<foodSizeWithId[]>(),
+    .references(() => foodTimedTable.id)
+    .default([]),
 
   activity: text("activity")
     .array()
+    .default([])
     .references(() => activity.id),
 });
 

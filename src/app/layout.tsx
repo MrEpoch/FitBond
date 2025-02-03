@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased ${poppins.className}`}>
-        <main className="min-h-container">{children}</main>
+        <main>{children}</main>
         <Toaster />
       </body>
     </html>

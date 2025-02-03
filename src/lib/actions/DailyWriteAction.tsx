@@ -1,54 +1,25 @@
 "use server";
 
 import { db } from "@/db";
-import { activity, dailyHealthInfo, food, userHealthInfo } from "@/db/schema";
+import {
+  activity,
+  dailyHealthInfo,
+  food,
+  foodTimedTable,
+  userHealthInfo,
+} from "@/db/schema";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentSession } from "../sessionTokens";
 
-const createFormSchema = z.object({
+const singularFoodAdd = z.object({
   dayDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  breakfast: z.array(
-    z.object({
-      size: z.number().positive(),
-      id: z.string().length(36),
-    }),
-  ),
-  firstSnack: z.array(
-    z.object({
-      size: z.number().positive(),
-      id: z.string().length(36),
-    }),
-  ),
-  lunch: z.array(
-    z.object({
-      size: z.number().positive(),
-      id: z.string().length(36),
-    }),
-  ),
-  secondSnack: z.array(
-    z.object({
-      size: z.number().positive(),
-      id: z.string().length(36),
-    }),
-  ),
-  dinner: z.array(
-    z.object({
-      size: z.number().positive(),
-      id: z.string().length(36),
-    }),
-  ),
-  secondDinner: z.array(
-    z.object({
-      size: z.number().positive(),
-      id: z.string().length(36),
-    }),
-  ),
-  activity: z.array(z.string().length(36)),
+  size: z.coerce.number().positive(),
+  id: z.string().length(36),
 });
 
-export async function createDailyWrite(formData: FormData) {
+export async function createDailyWrite(formData: FormData, foodTime: string) {
   try {
     const { user, session } = await getCurrentSession();
 
@@ -68,91 +39,87 @@ export async function createDailyWrite(formData: FormData) {
 
     const parsedFormData = Object.fromEntries(formData.entries());
 
-    const validatedData = createFormSchema.safeParse(parsedFormData);
+    const validatedData = singularFoodAdd.safeParse(parsedFormData);
+
     if (!validatedData.success) {
       return { error: "Invalid data", code: 400 };
     }
 
-    const {
-      dayDate,
-      breakfast,
-      firstSnack,
-      lunch,
-      secondSnack,
-      dinner,
-      secondDinner,
-      activity,
-    } = validatedData.data;
+    const foodTimeValidation = z
+      .string()
+      .regex(/^(breakfast|lunch|firstSnack|secondSnack|dinner|secondDinner)$/)
+      .safeParse(foodTime);
 
-    await db.insert(dailyHealthInfo).values({
-      userHealthId: userHealth[0].id,
-      breakfast: breakfast,
-      firstSnack: firstSnack,
-      lunch: lunch,
-      secondSnack: secondSnack,
-      dinner: dinner,
-      secondDinner: secondDinner,
-      activity: activity,
-      dayDate: dayDate,
-    });
+    if (!foodTimeValidation.success) {
+      return { error: "Invalid food time", code: 400 };
+    }
+
+    const { dayDate, id, size } = validatedData.data;
+
+    const doesDayExist = await db
+      .select()
+      .from(dailyHealthInfo)
+      .where(
+        and(
+          eq(dailyHealthInfo.userHealthId, userHealth[0].id),
+          eq(dailyHealthInfo.dayDate, dayDate),
+        ),
+      );
+    const getFood = await db.select().from(food).where(eq(food.id, id));
+
+    if (getFood.length === 0) {
+      return { error: "Food not found", code: 404 };
+    }
+
+    const foodTimed = await db
+      .insert(foodTimedTable)
+      .values({
+        dayDate: dayDate,
+        foodSize: size,
+        foodId: getFood[0].id,
+      })
+      .returning();
+
+    if (foodTimed.length === 0) {
+      return { error: "Food timed not found", code: 404 };
+    }
+    if (doesDayExist.length > 0) {
+      await db
+        .update(dailyHealthInfo)
+        .set({
+          [foodTimeValidation.data as keyof (typeof doesDayExist)[0]]: [
+            ...(doesDayExist[0][
+              foodTimeValidation.data as keyof (typeof doesDayExist)[0]
+            ] as []),
+            foodTimed[0].id,
+          ],
+        })
+        .where(
+          and(
+            eq(dailyHealthInfo.userHealthId, userHealth[0].id),
+            eq(dailyHealthInfo.dayDate, dayDate),
+          ),
+        );
+    } else {
+      await db.insert(dailyHealthInfo).values({
+        userHealthId: userHealth[0].id,
+        dayDate: dayDate,
+        [foodTimeValidation.data as keyof (typeof doesDayExist)[0]]: [
+          foodTimed[0].id,
+        ],
+      });
+    }
+
+    console.log(foodTimeValidation.data);
 
     revalidatePath("/main/dashboard");
+
+    return {
+      success: "Daily write created",
+      code: 200,
+    };
   } catch (e) {
     console.log(e);
-    return { error: "Server error", code: 500 };
-  }
-}
-
-export async function updateActivity(formData: FormData, id: string) {
-  try {
-    const { user, session } = await getCurrentSession();
-
-    if (!user || !session) {
-      return { error: "Unauthorized", code: 401 };
-    }
-    const parsedFormData = Object.fromEntries(formData.entries());
-    const id_val = z.string().max(36).safeParse(id);
-
-    if (!id_val.success) {
-      return { error: "Invalid data", code: 400 };
-    }
-
-    const validatedData = createFormSchema.safeParse(parsedFormData);
-    if (!validatedData.success) {
-      return { error: "Invalid data", code: 400 };
-    }
-
-    const { weight, duration, sets, repetitions, activityKind } =
-      validatedData.data;
-
-    if (activityKind === "movement") {
-      await db
-        .update(activity)
-        .set({
-          activity: "movement",
-          duration: duration,
-          repetitions: null,
-          sets: null,
-          weight: null,
-        })
-        .where(and(eq(activity.id, id_val.data), eq(activity.userId, user.id)));
-    } else if (activityKind === "weight_based") {
-      await db
-        .update(activity)
-        .set({
-          activity: "weight_based",
-          duration: null,
-          weight: weight,
-          sets: sets,
-          repetitions: repetitions,
-        })
-        .where(and(eq(activity.id, id_val.data), eq(activity.userId, user.id)));
-    } else {
-      throw new Error("Invalid data");
-    }
-
-    revalidatePath("/main/dashboard");
-  } catch (e) {
     return { error: "Server error", code: 500 };
   }
 }
@@ -231,25 +198,24 @@ export async function getDaysHealth(count = 100, offset = 0) {
       .offset(offset);
 
     if (daysHealth.length === 0) {
-      return []; // Return early if no data is found
+      return [];
     }
 
-    // Step 2: Collect all unique food IDs
-    const allFoodIds = [
+    // Step 2: Collect all foodTimeTable IDs (breakfast, firstSnack, etc. contain IDs from foodTimeTable)
+    const allFoodTimeIds = [
       ...new Set(
         daysHealth.flatMap((day) => [
-          ...day.breakfast.map((item) => item.id),
-          ...day.firstSnack.map((item) => item.id),
-          ...day.lunch.map((item) => item.id),
-          ...day.secondSnack.map((item) => item.id),
-          ...day.dinner.map((item) => item.id),
-          ...day.secondDinner.map((item) => item.id),
+          ...day.breakfast,
+          ...day.firstSnack,
+          ...day.lunch,
+          ...day.secondSnack,
+          ...day.dinner,
+          ...day.secondDinner,
         ]),
       ),
     ];
 
-    if (allFoodIds.length === 0) {
-      // No food IDs, return daysHealth with empty food details
+    if (allFoodTimeIds.length === 0) {
       return daysHealth.map((day) => ({
         ...day,
         breakfast: [],
@@ -261,59 +227,61 @@ export async function getDaysHealth(count = 100, offset = 0) {
       }));
     }
 
-    // Step 3: Fetch food details for all unique food IDs
+    // Step 3: Fetch foodTimeTable entries to get `{ id, foodId, size }`
+    const foodTimeEntries = await db
+      .select()
+      .from(foodTimedTable)
+      .where(inArray(foodTimedTable.id, allFoodTimeIds));
+
+    // Step 4: Collect all unique food IDs from `foodTimeTable`
+    const allFoodIds = [
+      ...new Set(foodTimeEntries.map((entry) => entry.foodId)),
+    ];
+
+    if (allFoodIds.length === 0) {
+      return daysHealth.map((day) => ({
+        ...day,
+        breakfast: [],
+        firstSnack: [],
+        lunch: [],
+        secondSnack: [],
+        dinner: [],
+        secondDinner: [],
+      }));
+    }
+
+    // Step 5: Fetch food details
     const foods = await db
       .select()
       .from(food)
       .where(inArray(food.id, allFoodIds));
 
-    // Step 4: Create a map of food details by ID for quick lookup
+    // Step 6: Create a map for quick lookup
     const foodMap = new Map(foods.map((item) => [item.id, item]));
 
-    // Step 5: Attach food details along with size to the respective meal arrays
+    // Step 7: Create a map of foodTimeTable ID to `{ food, size }`
+    const foodTimeMap = new Map(
+      foodTimeEntries.map((entry) => [
+        entry.id,
+        { ...foodMap.get(entry.foodId), size: entry.foodSize },
+      ]),
+    );
+
+    // Step 8: Attach food details with size to each meal time
     const daysHealthWithFoods = daysHealth.map((day) => ({
       ...day,
-      breakfast: day.breakfast
-        .map((item) => ({
-          ...foodMap.get(item.id), // Get food details
-          size: item.size, // Include size from the meal data
-        }))
-        .filter((food) => food.id), // Remove null entries if food is not found
-
+      breakfast: day.breakfast.map((id) => foodTimeMap.get(id)).filter(Boolean),
       firstSnack: day.firstSnack
-        .map((item) => ({
-          ...foodMap.get(item.id),
-          size: item.size,
-        }))
-        .filter((food) => food.id),
-
-      lunch: day.lunch
-        .map((item) => ({
-          ...foodMap.get(item.id),
-          size: item.size,
-        }))
-        .filter((food) => food.id),
-
+        .map((id) => foodTimeMap.get(id))
+        .filter(Boolean),
+      lunch: day.lunch.map((id) => foodTimeMap.get(id)).filter(Boolean),
       secondSnack: day.secondSnack
-        .map((item) => ({
-          ...foodMap.get(item.id),
-          size: item.size,
-        }))
-        .filter((food) => food.id),
-
-      dinner: day.dinner
-        .map((item) => ({
-          ...foodMap.get(item.id),
-          size: item.size,
-        }))
-        .filter((food) => food.id),
-
+        .map((id) => foodTimeMap.get(id))
+        .filter(Boolean),
+      dinner: day.dinner.map((id) => foodTimeMap.get(id)).filter(Boolean),
       secondDinner: day.secondDinner
-        .map((item) => ({
-          ...foodMap.get(item.id),
-          size: item.size,
-        }))
-        .filter((food) => food.id),
+        .map((id) => foodTimeMap.get(id))
+        .filter(Boolean),
     }));
 
     return daysHealthWithFoods;

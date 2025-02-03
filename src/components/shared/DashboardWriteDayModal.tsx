@@ -7,11 +7,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ActivityForm } from "@/components/shared/ActivityForm";
 import { Button } from "../ui/button";
-import FoodDisplayTable from "./FoodDisplayTable";
+import FoodList from "./FoodList";
+import { Plus } from "lucide-react";
 
-export default function DashboardWriteDayModal() {
+export default function DashboardWriteDayModal({
+  foodData,
+  foodTime,
+  dayDate,
+}: {
+  foodData: any;
+  foodTime:
+    | "breakfast"
+    | "dinner"
+    | "secondDinner"
+    | "lunch"
+    | "secondSnack"
+    | "firstSnack";
+  dayDate: string;
+}) {
   const [showingModal, setShowingModal] = React.useState(false);
 
   function hideModal() {
@@ -21,14 +35,16 @@ export default function DashboardWriteDayModal() {
   return (
     <Dialog onOpenChange={setShowingModal} open={showingModal}>
       <DialogTrigger asChild onClick={() => setShowingModal(true)}>
-        <Button variant="outline">Add activity</Button>
+        <Button className="rounded-full p-4 w-4 h-4">
+          <Plus />
+        </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] w-full max-w-lg overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Add activity</DialogTitle>
+      <DialogContent className="p-4 max-h-[90vh] w-full max-w-lg overflow-y-auto">
+        <DialogHeader className="hidden">
+          <DialogTitle>{foodTime}</DialogTitle>
         </DialogHeader>
-        <div className="h-full">
-          <FoodDisplayTable />
+        <div className="h-full p-4">
+          <FoodList foodTime={foodTime} dayDate={dayDate} data={foodData} />
         </div>
       </DialogContent>
     </Dialog>

@@ -65,6 +65,7 @@ export async function validateSessionToken(
     .from(sessionTable)
     .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
     .where(eq(sessionTable.id, sessionId));
+  console.log(result);
   if (result.length < 1) {
     return { session: null, user: null };
   }
@@ -141,11 +142,13 @@ export async function deleteSessionTokenCookie(): Promise<void> {
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
+    console.log("ga");
     const token = await cookies();
     const session = token.get("session");
     if (!session) {
       return { session: null, user: null };
     }
+    console.log(session);
     const result = await validateSessionToken(session.value);
     return result;
   },

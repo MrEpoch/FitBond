@@ -61,7 +61,7 @@ function getNutrientInfo(caloriesGoal, fitnessGoal, dayNutrients) {
     protein: proteinCurrent,
     fat: fatCurrent,
     carbs: carbsCurrent,
-  } = { protein: 120, carbs: 200, fat: 30 };
+  } = dayNutrients;
 
   // Normalize the current values to a max of 10 based on the goals
   const maxScale = 10; // Maximum value in the chart
@@ -99,12 +99,13 @@ export default function ChartHealth({
   caloriesGoal,
   fitnessGoal,
   dayNutrients,
+  date,
 }) {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Radial Chart - Grid</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Your daily nutrients</CardTitle>
+        <CardDescription>{date}</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -130,10 +131,11 @@ export default function ChartHealth({
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          0 / {caloriesGoal}
+          {dayNutrients.calories} / {caloriesGoal}
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          {dayNutrients.protein}g protein / {dayNutrients.fat}g fat /{" "}
+          {dayNutrients.carbs}g carbs
         </div>
       </CardFooter>
     </Card>

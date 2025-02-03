@@ -9,11 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { FoodForm } from "./FoodForm";
-import FoodDisplayTable from "./FoodDisplayTable";
-import { columns, food } from "./FoodTypes";
-import FoodList from "./FoodList";
+import { Apple } from "lucide-react";
 
-export default function DashboardFoodModal({ foodData }: { foodData: food[] }) {
+export default function DashboardFoodModal() {
   const [showingModal, setShowingModal] = React.useState(false);
 
   function hideModal() {
@@ -23,14 +21,16 @@ export default function DashboardFoodModal({ foodData }: { foodData: food[] }) {
   return (
     <Dialog onOpenChange={setShowingModal} open={showingModal}>
       <DialogTrigger asChild onClick={() => setShowingModal(true)}>
-        <Button variant="outline">Add food</Button>
+        <Button className="rounded-lg w-8 h-8 p-5">
+          <Apple width={20} height={20} />
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] w-full max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add food</DialogTitle>
         </DialogHeader>
-        <div className="h-full w-full">
-          <FoodList data={foodData} />
+        <div className="h-full">
+          <FoodForm hideModal={hideModal} />
         </div>
       </DialogContent>
     </Dialog>

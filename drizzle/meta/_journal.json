@@ -8,6 +8,27 @@
       "when": 1737884537036,
       "tag": "0000_right_dragon_lord",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1738504274812,
+      "tag": "0001_lame_sage",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738598358353,
+      "tag": "0002_quick_lionheart",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1738598551945,
+      "tag": "0003_free_medusa",
+      "breakpoints": true
     }
   ]
 }

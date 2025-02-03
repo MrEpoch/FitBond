@@ -4,6 +4,7 @@ import React from "react";
 
 export default async function layout({ children }) {
   const { session, user } = await getCurrentSession();
+  console.log(session, user);
 
   if (session === null) {
     return redirect("/auth/login");

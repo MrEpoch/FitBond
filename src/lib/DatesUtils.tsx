@@ -29,7 +29,7 @@ export function generateAndFillDates(inputData = []) {
   );
 
   // Generate 50 future dates
-  for (let i = 1; result.length < 100; i++) {
+  for (let i = 0; result.length < 100; i++) {
     const date = new Date(currentDate);
     date.setDate(date.getDate() + i);
     const dateString = date.toISOString().split("T")[0];
@@ -70,12 +70,12 @@ export function prepareNutrients(inputData = []) {
         0,
       ),
     fat:
-      item.breakfast.reduce((acc, cur) => acc + cur.size * cur.fat100G, 0) +
-      item.lunch.reduce((acc, cur) => acc + cur.size * cur.fat100G, 0) +
-      item.dinner.reduce((acc, cur) => acc + cur.size * cur.fat100G, 0) +
-      item.firstSnack.reduce((acc, cur) => acc + cur.size * cur.fat100G, 0) +
-      item.secondSnack.reduce((acc, cur) => acc + cur.size * cur.fat100G, 0) +
-      item.secondDinner.reduce((acc, cur) => acc + cur.size * cur.fat100G, 0),
+      item.breakfast.reduce((acc, cur) => acc + cur.size * cur.fats100G, 0) +
+      item.lunch.reduce((acc, cur) => acc + cur.size * cur.fats100G, 0) +
+      item.dinner.reduce((acc, cur) => acc + cur.size * cur.fats100G, 0) +
+      item.firstSnack.reduce((acc, cur) => acc + cur.size * cur.fats100G, 0) +
+      item.secondSnack.reduce((acc, cur) => acc + cur.size * cur.fats100G, 0) +
+      item.secondDinner.reduce((acc, cur) => acc + cur.size * cur.fats100G, 0),
     carbs:
       item.breakfast.reduce(
         (acc, cur) => acc + cur.size * cur.carbohydrates100G,
