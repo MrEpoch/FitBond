@@ -26,7 +26,7 @@ export default function ChartCarousel({
   }, []);
 
   return (
-    <div className="h-full flex flex-col gap-2 p-8 rounded-lg w-full bg-main-background-300 col-span-2">
+    <div className="h-full flex flex-col gap-2 p-8 rounded-lg w-full bg-main-background-200 col-span-2">
       <div className="flex gap-4 items-center justify-between w-full">
         <button
           onClick={() => setDaysHealthIndex(daysHealthIndex - 1)}
@@ -36,6 +36,7 @@ export default function ChartCarousel({
         </button>
         {daysNutrients.length > 0 && (
           <ChartHealth
+            foodData={foodData}
             date={days[daysHealthIndex].dayDate}
             dayNutrients={daysNutrients[daysHealthIndex]}
             caloriesGoal={userHealthProfile.calories}
@@ -56,7 +57,7 @@ export default function ChartCarousel({
       <div className="flex flex-col gap-2 w-full py-16">
         {daysNutrients.length > 0 && (
           <>
-            <div className="w-full min-h-32 flex flex-col gap-4 rounded-lg bg-main-background-300">
+            <div className="w-full min-h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="breakfast"
                 foodData={foodData}
@@ -69,7 +70,7 @@ export default function ChartCarousel({
                 ))}
               </div>
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg bg-main-background-300">
+            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="firstSnack"
                 foodData={foodData}
@@ -80,7 +81,7 @@ export default function ChartCarousel({
                 <FoodListItem food={food} key={i} />
               ))}
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg bg-main-background-300">
+            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="lunch"
                 foodData={foodData}
@@ -91,7 +92,7 @@ export default function ChartCarousel({
                 <FoodListItem food={food} key={i} />
               ))}
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg bg-main-background-300">
+            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="secondSnack"
                 foodData={foodData}
@@ -102,7 +103,7 @@ export default function ChartCarousel({
                 <FoodListItem food={food} key={i} />
               ))}
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg bg-main-background-300">
+            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="dinner"
                 foodData={foodData}
@@ -113,7 +114,7 @@ export default function ChartCarousel({
                 <FoodListItem food={food} key={i} />
               ))}
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg bg-main-background-300">
+            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="secondDinner"
                 foodData={foodData}
@@ -133,7 +134,7 @@ export default function ChartCarousel({
 
 function FoodListItem({ food }) {
   return (
-    <li className="flex justify-between py-4 items-center w-full gap-2 border rounded p-4">
+    <li className="flex justify-between py-4 items-center w-full gap-2 text-main-text-200 p-4">
       <span>{food.foodName}</span>
       <div className="flex gap-2 items-center">
         <span>{food.calories100G * food.size} kcal</span>
@@ -145,7 +146,7 @@ function FoodListItem({ food }) {
 
 function FoodTimeHeader({ foodTime, foodData, dayDate, foodTimeText }) {
   return (
-    <div className="flex bg-main-300 px-6 rounded-full justify-between border-b border-t py-4 items-center w-full gap-2">
+    <div className="flex bg-main-background-100 px-6 rounded-full justify-between text-main-text-200 py-4 items-center w-full gap-2">
       <p className={"text-main-text-100 text-lg"}>{foodTimeText}:</p>
       <DashboardWriteDayModal
         dayDate={dayDate}

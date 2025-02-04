@@ -35,11 +35,11 @@ export default function DashboardWriteDayModal({
   return (
     <Dialog onOpenChange={setShowingModal} open={showingModal}>
       <DialogTrigger asChild onClick={() => setShowingModal(true)}>
-        <Button className="rounded-full p-4 w-4 h-4">
+        <Button className="bg-main-300 text-main-background-100 transition rounded-full p-4 w-4 h-4">
           <Plus />
         </Button>
       </DialogTrigger>
-      <DialogContent className="p-4 max-h-[90vh] w-full max-w-lg overflow-y-auto">
+      <DialogContent className="p-4 border-hidden shadow-lg bg-main-background-100 max-h-[90vh] w-full max-w-lg overflow-y-auto">
         <DialogHeader className="hidden">
           <DialogTitle>{foodTime}</DialogTitle>
         </DialogHeader>

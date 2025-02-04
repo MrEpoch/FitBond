@@ -185,7 +185,7 @@ export function ActivityForm({ hideModal }) {
         )}
         <Button
           disabled={pending}
-          className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-lg shadow`}
+          className={`bg-main-background-200 px-8 ${museoModerno.className} font-medium py-4 text-main-text-100 hover:bg-main-background-300 rounded-[--radius] shadow`}
           type="submit"
         >
           Write activity

@@ -26,12 +26,12 @@ export default function FoodInfoModal({ food }: { food: any }) {
           <Info />
         </Button>
       </DialogTrigger>
-      <DialogContent className="p-4 max-h-[90vh] w-full max-w-lg overflow-y-auto">
+      <DialogContent className="p-4 max-h-[90vh] border-hidden shadow-lg w-full max-w-lg overflow-y-auto">
         <DialogHeader className="hidden">
           <DialogTitle>Food Information</DialogTitle>
         </DialogHeader>
-        <div className="h-full p-4 flex flex-col gap-4">
-          <ul className="flex flex-col gap-2 border rounded p-4">
+        <div className="h-full bg-main-background-200 text-main-text-100 p-4 flex flex-col gap-4">
+          <ul className="flex flex-col gap-2 rounded p-4">
             <li className="border-b p-2">
               <strong>Name:</strong> {food.foodName}
             </li>
@@ -52,7 +52,10 @@ export default function FoodInfoModal({ food }: { food: any }) {
             </li>
           </ul>
           <div className="w-full items-center justify-center flex">
-            <Button onClick={deleteFoodFromDayIntake}>
+            <Button
+              onClick={deleteFoodFromDayIntake}
+              className="rounded-full bg-main-300 text-main-text-100 hover:bg-main-200 p-6 w-4 h-4"
+            >
               <Trash />
             </Button>
           </div>

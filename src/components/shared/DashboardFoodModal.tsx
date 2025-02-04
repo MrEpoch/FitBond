@@ -25,7 +25,7 @@ export default function DashboardFoodModal() {
           <Apple width={20} height={20} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] w-full max-w-lg overflow-y-auto">
+      <DialogContent className="max-h-[90vh] w-full max-w-lg overflow-y-auto text-main-text-100 bg-main-background-100 border-hidden shadow-lg">
         <DialogHeader>
           <DialogTitle>Add food</DialogTitle>
         </DialogHeader>

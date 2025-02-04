@@ -25,7 +25,7 @@ export default function DashboardActivityModal() {
           <Bike width={20} height={20} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] w-full max-w-lg overflow-y-auto">
+      <DialogContent className="max-h-[90vh] w-full max-w-lg overflow-y-auto border-hidden shadow-lg bg-main-background-100">
         <DialogHeader>
           <DialogTitle>Add activity</DialogTitle>
         </DialogHeader>

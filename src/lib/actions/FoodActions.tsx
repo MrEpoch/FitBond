@@ -289,7 +289,7 @@ export async function getFoods(count = 25, offset = 0, orderBy = "date") {
   }
 }
 
-export async function foodSearch(query: string) {
+export async function foodSearch(query: string, limit = 25, offset = 0) {
   try {
     const queryValidation = z.string().min(3).max(255).safeParse(query);
 
@@ -315,6 +315,8 @@ export async function foodSearch(query: string) {
         fatsPoly100G: true,
         fatsTran100G: true,
       },
+      limit: limit,
+      offset: offset,
     });
     return foods;
   } catch (e) {

@@ -41,11 +41,12 @@ export default function FoodList({
   const [foodInfo, setFoodInfo] = React.useState<food | null>(null);
   const [foodData, setFoodData] = React.useState<food[]>(data);
   const [foodSize, setFoodSize] = React.useState(0);
+  const [filteredSearch, setFilteredSearch] = React.useState<string>("");
+  const [foodCount, setFoodCount] = React.useState(25);
 
   async function addFoodIntoDay(id: string) {
     try {
       const formData = new FormData();
-
       formData.append("id", id);
       formData.append("size", foodSize.toString());
       formData.append("dayDate", dayDate);
@@ -62,9 +63,32 @@ export default function FoodList({
     }
   }
 
+  async function loadMoreData() {
+    try {
+      const searchedFoodData = await debounce(
+        await foodSearch(filteredSearch, 25, foodCount),
+        500,
+      );
+
+      if (!searchedFoodData || searchedFoodData.error) {
+        return;
+      }
+
+      const filtered = searchedFoodData.filter(
+        (food) =>
+          foodData.filter((foodLoaded) => food.id !== foodLoaded.id).length ===
+          0,
+      );
+      setFoodData([...foodData, filtered]);
+
+      setFoodCount(foodCount + 25);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   async function filterData(e) {
     if (e.target.value && e.target.value.length > 3) {
-      console.log(e.target.value);
       const searchedFoodData = await debounce(
         await foodSearch(e.target.value),
         500,
@@ -72,6 +96,9 @@ export default function FoodList({
       if (!searchedFoodData || searchedFoodData.error) {
         return;
       }
+      setFilteredSearch(e.target.value);
+      setFoodCount(0);
+
       const filtered = searchedFoodData.filter(
         (food) =>
           foodData.filter((foodLoaded) => food.id !== foodLoaded.id).length ===
@@ -94,14 +121,24 @@ export default function FoodList({
   }
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full text-main-text-100 p-2 rounded flex flex-col gap-4">
       <div className="flex gap-2 justify-between items-center">
         <Input
           placeholder="Filter food"
-          onChange={filterData}
+          onChange={async (e) => {
+            setFilteredSearch(e.target.value);
+            await filterData(e);
+          }}
+          value={filteredSearch}
           className="max-w-sm"
         />
-        <Button onClick={() => setFoodData(data)} variant="outline">
+        <Button
+          onClick={() => {
+            setFoodData(data);
+            setFilteredSearch("");
+          }}
+          variant="outline"
+        >
           <RefreshCw />
         </Button>
       </div>
@@ -109,7 +146,7 @@ export default function FoodList({
         <>
           <button
             onClick={() => setFoodInfo(null)}
-            className="text-gray-800 hover:text-gray-500 transition w-fit flex justify-start items-center gap-2 border-gray-300 py-4"
+            className="hover:underline transition w-fit flex justify-start items-center gap-2 border-gray-300 py-4"
           >
             All items
           </button>
@@ -120,7 +157,7 @@ export default function FoodList({
               }
               return (
                 <li
-                  className="flex justify-between border-t border-b py-4 items-center w-full gap-2"
+                  className="flex justify-between border-main-text-200 border-b py-4 items-center w-full gap-2"
                   key={i}
                 >
                   <span>{rowNames[i - 1]}</span>
@@ -129,26 +166,28 @@ export default function FoodList({
               );
             })}
           </ul>
-          <Input
-            placeholder="Food Size"
-            type="number"
-            step="0.01"
-            onChange={(e) => setFoodSize(Number(e.target.value))}
-            className="max-w-sm"
-          />
-          <button
-            onClick={async () => await addFoodIntoDay(foodInfo.id)}
-            className="text-gray-800 justify-center hover:text-gray-500 transition w-full flex items-center gap-2 border-gray-300 py-4"
-          >
-            <Pen />
-          </button>
+          <div className="w-full h-32 flex md:flex-row flex-col justify-between items-center gap-4 rounded-lg">
+            <Input
+              placeholder="Food Size"
+              type="number"
+              step="0.01"
+              onChange={(e) => setFoodSize(Number(e.target.value))}
+              className="max-w-sm w-full"
+            />
+            <button
+              onClick={async () => await addFoodIntoDay(foodInfo.id)}
+              className="justify-center hover:text-gray-500 transition flex items-center gap-2 border-gray-300 py-4"
+            >
+              <Pen />
+            </button>
+          </div>
         </>
       ) : (
         <>
-          <ul className="w-full flex flex-col gap-2">
+          <ul className="w-full flex flex-col gap-4">
             {foodData.map((food) => (
               <li
-                className="flex justify-between border-t border-b py-4 items-center w-full gap-2"
+                className="flex justify-between shadow px-4 rounded-lg shadow-main-background-200 py-4 items-center w-full gap-2"
                 key={food.id}
               >
                 <button onClick={() => setFoodInfo(food)}>
@@ -161,8 +200,8 @@ export default function FoodList({
             ))}
           </ul>
           <button
-            onClick={() => setFoodInfo(null)}
-            className="text-gray-800 justify-center hover:text-gray-500 transition w-full flex items-center gap-2 border-gray-300 py-4"
+            onClick={loadMoreData}
+            className="justify-center hover:text-gray-500 transition w-full flex items-center gap-2 border-gray-300 py-4"
           >
             <ArrowDown />
           </button>

@@ -254,7 +254,7 @@ export function FoodForm({ hideModal }) {
         />
 
         <Button
-          className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 number-main-number-100 text-black hover:bg-transparent hover:number-black hover:border-main-100 hover:border rounded-[--radius] number-lg shadow`}
+          className={`text-main-text-100 bg-main-background-200 px-10 ${museoModerno.className} font-medium py-5 hover:bg-main-background-300 transition shadow`}
           type="submit"
         >
           Write food

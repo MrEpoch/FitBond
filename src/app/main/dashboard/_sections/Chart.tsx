@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 
 import { PolarGrid, RadialBar, RadialBarChart } from "recharts";
 
@@ -15,6 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContentNutrients,
 } from "@/components/ui/chart";
+import FoodsDisplayList from "./FoodsDisplayList";
 
 const nutrientChartConfig = {
   protein: {
@@ -100,9 +102,12 @@ export default function ChartHealth({
   fitnessGoal,
   dayNutrients,
   date,
+  foodData,
 }) {
+  const [showingModal, setShowingModal] = React.useState(false);
+
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col border-hidden shadow-lg bg-main-background-100">
       <CardHeader className="items-center pb-0">
         <CardTitle>Your daily nutrients</CardTitle>
         <CardDescription>{date}</CardDescription>
@@ -116,13 +121,24 @@ export default function ChartHealth({
             fill="#fff"
             data={getNutrientInfo(caloriesGoal, fitnessGoal, dayNutrients)}
             innerRadius={30}
+            onClick={() => setShowingModal(true)}
             outerRadius={100}
           >
             <ChartTooltip
               cursor={false}
-              content={
-                <ChartTooltipContentNutrients hideLabel nameKey="nutrient" />
-              }
+              content={(v) => (
+                <>
+                  <FoodsDisplayList
+                    foodsData={foodData}
+                    showingModal={showingModal}
+                    nutrientType={() => {
+                      console.log(v);
+                    }}
+                    setShowingModal={setShowingModal}
+                  />
+                  <ChartTooltipContentNutrients hideLabel nameKey="nutrient" />
+                </>
+              )}
             />
             <PolarGrid gridType="circle" />
             <RadialBar background dataKey="chart" />

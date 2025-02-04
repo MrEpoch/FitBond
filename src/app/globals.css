@@ -30,16 +30,16 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
 
-    --primary-100: #26a69a;
-    --primary-200: #408d86;
-    --primary-300: #cdfaf6;
-    --accent-100: #80cbc4;
-    --accent-200: #43a49b;
-    --text-100: #263339;
-    --text-200: #728f9e;
-    --bg-100: #e0f2f1;
-    --bg-200: #d0ebea;
-    --bg-300: #ffffff;
+    --primary-100: #ffede7; /* Soft peach */
+    --primary-200: #ffc4a3; /* Light orange */
+    --primary-300: #ff944d; /* Bright orange */
+    --accent-100: #e7f9ff; /* Light cyan */
+    --accent-200: #b3ecff; /* Soft blue */
+    --bg-100: #ffffff; /* White */
+    --bg-200: #f5f5f5; /* Very light gray */
+    --bg-300: #e0e0e0; /* Light gray */
+    --text-100: #333333; /* Dark gray */
+    --text-200: #555555; /* Medium gray */
   }
 
   .dark {
@@ -67,6 +67,17 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    --primary-100: #ffb199; /* Soft coral */
+    --primary-200: #ff805c; /* Warm orange */
+    --primary-300: #ff5722; /* Strong orange */
+    --accent-100: #99e6ff; /* Light sky blue */
+    --accent-200: #66ccff; /* Brighter blue */
+    --bg-100: #121212; /* Deep black */
+    --bg-200: #1e1e1e; /* Dark gray */
+    --bg-300: #2e2e2e; /* Medium gray */
+    --text-100: #f0f0f0; /* Light gray */
+    --text-200: #cccccc; /* Medium gray */
   }
 }
 
