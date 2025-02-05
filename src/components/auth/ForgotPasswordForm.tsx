@@ -20,7 +20,6 @@ export function ForgotPasswordForm() {
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof formSchemaEmail>) {
-    console.log(values);
     const email = await fetch("/api/auth/forgot-password", {
       method: "POST",
       headers: {

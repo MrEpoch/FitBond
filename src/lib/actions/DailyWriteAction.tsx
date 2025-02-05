@@ -74,6 +74,13 @@ export async function createDailyWrite(formData: FormData, foodTime: string) {
     const foodTimed = await db
       .insert(foodTimedTable)
       .values({
+        foodTime: foodTimeValidation.data as
+          | "breakfast"
+          | "lunch"
+          | "dinner"
+          | "firstSnack"
+          | "secondSnack"
+          | "secondDinner",
         dayDate: dayDate,
         foodSize: size,
         foodId: getFood[0].id,
@@ -110,8 +117,6 @@ export async function createDailyWrite(formData: FormData, foodTime: string) {
       });
     }
 
-    console.log(foodTimeValidation.data);
-
     revalidatePath("/main/dashboard");
 
     return {
@@ -124,7 +129,7 @@ export async function createDailyWrite(formData: FormData, foodTime: string) {
   }
 }
 
-export async function deleteActivity(id: string) {
+export async function deleteFoodFromDay(id: string) {
   try {
     const { user, session } = await getCurrentSession();
 
@@ -132,16 +137,64 @@ export async function deleteActivity(id: string) {
       return { error: "Unauthorized", code: 401 };
     }
 
+    console.log("id", id);
     const id_val = z.string().max(36).safeParse(id);
     if (!id_val.success) {
       return { error: "Invalid data", code: 400 };
     }
+    console.log(id);
+
+    const deletedFoodTime = await db
+      .delete(foodTimedTable)
+      .where(eq(foodTimedTable.id, id))
+      .returning();
+
+    const userHealth = await db
+      .select()
+      .from(userHealthInfo)
+      .where(eq(userHealthInfo.userId, user.id))
+      .limit(1)
+      .execute();
+    if (userHealth.length === 0) {
+      return { error: "User health info not found", code: 404 };
+    }
+
+    const dailyHealthInfoData = await db
+      .select()
+      .from(dailyHealthInfo)
+      .where(
+        and(
+          eq(dailyHealthInfo.userHealthId, userHealth[0].id),
+          eq(dailyHealthInfo.dayDate, deletedFoodTime[0].dayDate),
+        ),
+      );
+    if (dailyHealthInfoData.length === 0) {
+      return { error: "Daily health info not found", code: 404 };
+    }
 
     await db
-      .delete(activity)
-      .where(and(eq(activity.id, id), eq(activity.userId, user.id)));
+      .update(dailyHealthInfo)
+      .set({
+        [deletedFoodTime[0].foodTime as keyof (typeof dailyHealthInfoData)[0]]:
+          dailyHealthInfoData[0][
+            deletedFoodTime[0].foodTime as keyof (typeof dailyHealthInfoData)[0]
+          ]?.filter((x) => x !== deletedFoodTime[0].id),
+      })
+      .where(
+        and(
+          eq(dailyHealthInfo.userHealthId, userHealth[0].id),
+          eq(dailyHealthInfo.dayDate, deletedFoodTime[0].dayDate),
+        ),
+      );
+
     revalidatePath("/main/dashboard");
+
+    return {
+      success: "Daily write deleted",
+      code: 200,
+    };
   } catch (e) {
+    console.log(e);
     return { error: "Server error", code: 500 };
   }
 }
@@ -263,7 +316,11 @@ export async function getDaysHealth(count = 100, offset = 0) {
     const foodTimeMap = new Map(
       foodTimeEntries.map((entry) => [
         entry.id,
-        { ...foodMap.get(entry.foodId), size: entry.foodSize },
+        {
+          ...foodMap.get(entry.foodId),
+          size: entry.foodSize,
+          foodTimedId: entry.id,
+        },
       ]),
     );
 
@@ -283,6 +340,8 @@ export async function getDaysHealth(count = 100, offset = 0) {
         .map((id) => foodTimeMap.get(id))
         .filter(Boolean),
     }));
+
+    daysHealthWithFoods.map((item) => console.log(item));
 
     return daysHealthWithFoods;
   } catch (e) {

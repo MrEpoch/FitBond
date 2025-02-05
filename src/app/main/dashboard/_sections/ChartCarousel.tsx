@@ -1,7 +1,11 @@
 "use client";
 import React, { useEffect } from "react";
 import ChartHealth from "./Chart";
-import { generateAndFillDates, prepareNutrients } from "@/lib/DatesUtils";
+import {
+  generateAndFillDates,
+  prepareNutrientList,
+  prepareNutrients,
+} from "@/lib/DatesUtils";
 import DashboardWriteDayModal from "@/components/shared/DashboardWriteDayModal";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import DashboardActivityModal from "@/components/shared/DashboardActivityModal";
@@ -22,29 +26,45 @@ export default function ChartCarousel({
     const daysWithDates = generateAndFillDates(daysHealth);
     setDays(daysWithDates);
     setDaysNutrients(prepareNutrients(daysWithDates));
-    console.log("ds", prepareNutrients(daysWithDates));
   }, []);
+  console.log(days[daysHealthIndex]);
+
+  const [isAnimating, setIsAnimating] = React.useState(false);
+
+  function animateChart() {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 1000);
+  }
 
   return (
     <div className="h-full flex flex-col gap-2 p-8 rounded-lg w-full bg-main-background-200 col-span-2">
       <div className="flex gap-4 items-center justify-between w-full">
         <button
-          onClick={() => setDaysHealthIndex(daysHealthIndex - 1)}
+          onClick={() => {
+            setDaysHealthIndex(daysHealthIndex - 1);
+            animateChart();
+          }}
           className="w-fit h-full"
         >
           <ArrowLeft />
         </button>
         {daysNutrients.length > 0 && (
           <ChartHealth
-            foodData={foodData}
+            foodData={prepareNutrientList(days[daysHealthIndex] ?? [])}
             date={days[daysHealthIndex].dayDate}
             dayNutrients={daysNutrients[daysHealthIndex]}
             caloriesGoal={userHealthProfile.calories}
             fitnessGoal={userHealthProfile.fitnessGoal}
+            animating={isAnimating}
           />
         )}
         <button
-          onClick={() => setDaysHealthIndex(daysHealthIndex + 1)}
+          onClick={() => {
+            setDaysHealthIndex(daysHealthIndex + 1);
+            animateChart();
+          }}
           className="w-fit h-full"
         >
           <ArrowRight />
@@ -66,64 +86,98 @@ export default function ChartCarousel({
               />
               <div className="flex px-6 h-full justify-between items-center w-full gap-2">
                 {days[daysHealthIndex]?.breakfast.map((food, i) => (
-                  <FoodListItem key={i} food={food} />
+                  <FoodListItem
+                    id={days[daysHealthIndex]?.foodTimedId}
+                    key={i}
+                    food={food}
+                  />
                 ))}
               </div>
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
+            <div className="w-full min-h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="firstSnack"
                 foodData={foodData}
                 dayDate={days[daysHealthIndex].dayDate}
                 foodTimeText="First Snack"
               />
-              {days[daysHealthIndex]?.firstSnack.map((food, i) => (
-                <FoodListItem food={food} key={i} />
-              ))}
+              <div className="flex px-6 h-full justify-between items-center w-full gap-2">
+                {days[daysHealthIndex]?.firstSnack.map((food, i) => (
+                  <FoodListItem
+                    id={days[daysHealthIndex]?.foodTimedId}
+                    food={food}
+                    key={i}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
+            <div className="w-full min-h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="lunch"
                 foodData={foodData}
                 dayDate={days[daysHealthIndex].dayDate}
                 foodTimeText="Lunch"
               />
-              {days[daysHealthIndex]?.lunch.map((food, i) => (
-                <FoodListItem food={food} key={i} />
-              ))}
+              <div className="flex px-6 h-full justify-between items-center w-full gap-2">
+                {days[daysHealthIndex]?.lunch.map((food, i) => (
+                  <FoodListItem
+                    id={days[daysHealthIndex]?.foodTimedId}
+                    food={food}
+                    key={i}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
+            <div className="w-full min-h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="secondSnack"
                 foodData={foodData}
                 dayDate={days[daysHealthIndex].dayDate}
                 foodTimeText="Second Snack"
               />
-              {days[daysHealthIndex]?.secondSnack.map((food, i) => (
-                <FoodListItem food={food} key={i} />
-              ))}
+              <div className="flex px-6 h-full justify-between items-center w-full gap-2">
+                {days[daysHealthIndex]?.secondSnack.map((food, i) => (
+                  <FoodListItem
+                    id={days[daysHealthIndex]?.foodTimedId}
+                    food={food}
+                    key={i}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
+            <div className="w-full min-h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="dinner"
                 foodData={foodData}
                 dayDate={days[daysHealthIndex].dayDate}
                 foodTimeText="Dinner"
               />
-              {days[daysHealthIndex]?.dinner.map((food, i) => (
-                <FoodListItem food={food} key={i} />
-              ))}
+              <div className="flex px-6 h-full justify-between items-center w-full gap-2">
+                {days[daysHealthIndex]?.dinner.map((food, i) => (
+                  <FoodListItem
+                    id={days[daysHealthIndex]?.foodTimedId}
+                    food={food}
+                    key={i}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="w-full h-32 flex flex-col gap-4 rounded-lg">
+            <div className="w-full min-h-32 flex flex-col gap-4 rounded-lg">
               <FoodTimeHeader
                 foodTime="secondDinner"
                 foodData={foodData}
                 dayDate={days[daysHealthIndex].dayDate}
                 foodTimeText="Second Dinner"
               />
-              {days[daysHealthIndex]?.secondDinner.map((food, i) => (
-                <FoodListItem food={food} key={i} />
-              ))}
+              <div className="flex px-6 h-full justify-between items-center w-full gap-2">
+                {days[daysHealthIndex]?.secondDinner.map((food, i) => (
+                  <FoodListItem
+                    id={days[daysHealthIndex]?.foodTimedId ?? ""}
+                    food={food}
+                    key={i}
+                  />
+                ))}
+              </div>
             </div>
           </>
         )}
@@ -132,13 +186,13 @@ export default function ChartCarousel({
   );
 }
 
-function FoodListItem({ food }) {
+function FoodListItem({ food, id }) {
   return (
     <li className="flex justify-between py-4 items-center w-full gap-2 text-main-text-200 p-4">
       <span>{food.foodName}</span>
       <div className="flex gap-2 items-center">
         <span>{food.calories100G * food.size} kcal</span>
-        <FoodInfoModal food={food} />
+        <FoodInfoModal id={id} food={food} />
       </div>
     </li>
   );

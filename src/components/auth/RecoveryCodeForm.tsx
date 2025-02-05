@@ -26,7 +26,6 @@ export function RecoveryCodeForm({ recoveryCode }) {
     );
     const codeResponse = await recoveryCodeApi.json();
     if (codeResponse.success && codeResponse.recoveryCode) {
-      console.log("Success", codeResponse);
       setRecoveryCodeState(codeResponse.recoveryCode);
     }
   }

@@ -16,8 +16,6 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  console.log(user);
-
   if (!user.emailVerified) {
     return NextResponse.json({
       success: false,

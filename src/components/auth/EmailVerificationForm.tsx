@@ -34,7 +34,6 @@ export function EmailVerificationForm() {
     });
 
     const data = await response.json();
-    console.log(data);
 
     if (data?.error === "UNAUTHORIZED") router.push("/auth/login");
     if (data?.error === "EXPIRED_CODE") {
@@ -43,7 +42,6 @@ export function EmailVerificationForm() {
       return;
     }
     if (data.success) {
-      console.log(data);
       if (data.redirect) return router.push(data.redirect);
       return router.push("/auth/2fa");
     } else {

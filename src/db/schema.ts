@@ -146,12 +146,22 @@ export const activity = pgTable("activity", {
   }),
 });
 
+export const foodTimes = pgEnum("food_times", [
+  "breakfast",
+  "lunch",
+  "dinner",
+  "firstSnack",
+  "secondSnack",
+  "secondDinner",
+]);
+
 export const foodTimedTable = pgTable("food_timed", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
   foodId: uuid("food_id")
     .notNull()
     .references(() => food.id),
   dayDate: date("day_date").notNull(),
+  foodTime: foodTimes().notNull(),
   foodSize: doublePrecision("food_size").default(1),
   createdAt: timestamp("created_at", {
     withTimezone: true,

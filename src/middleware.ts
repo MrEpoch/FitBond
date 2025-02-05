@@ -40,13 +40,11 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       request.url.split("/")[3] === "") &&
     request.cookies.get("session")?.value === null
   ) {
-    console.log("f");
     return NextResponse.redirect(new URL("/auth/login", request.url));
   } else if (
     request.url.split("/")[3] === "" &&
     request.cookies.get("session")?.value !== null
   ) {
-    console.log("k");
     return NextResponse.redirect(new URL("/main/dashboard", request.url));
   }
 

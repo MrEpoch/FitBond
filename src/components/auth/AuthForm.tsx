@@ -60,7 +60,6 @@ export function AuthForm({
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     if (authType === "register") {
       const user = await fetch("/api/auth/register", {
         method: "POST",
@@ -74,7 +73,6 @@ export function AuthForm({
         }),
       });
       const userResponse = await user.json();
-      console.log(userResponse);
 
       if (userResponse.redirect) router.push(userResponse.redirect);
 

@@ -52,7 +52,6 @@ export default function FoodList({
       formData.append("dayDate", dayDate);
 
       const addedFood = await createDailyWrite(formData, foodTime);
-      console.log(addedFood);
 
       if (!addedFood || addedFood.error) {
         console.log("Error adding food into day", addedFood.error);
@@ -74,14 +73,20 @@ export default function FoodList({
         return;
       }
 
+      console.log(searchedFoodData, foodData);
+
       const filtered = searchedFoodData.filter(
         (food) =>
-          foodData.filter((foodLoaded) => food.id !== foodLoaded.id).length ===
+          foodData.filter((foodLoaded) => food.id === foodLoaded.id).length ===
           0,
       );
-      setFoodData([...foodData, filtered]);
 
-      setFoodCount(foodCount + 25);
+      console.log(filtered, foodData);
+
+      setFoodData([...foodData, ...filtered]);
+      setFoodInfo(null);
+
+      setFoodCount(foodCount + filtered.length);
     } catch (e) {
       console.log(e);
     }
@@ -97,7 +102,6 @@ export default function FoodList({
         return;
       }
       setFilteredSearch(e.target.value);
-      setFoodCount(0);
 
       const filtered = searchedFoodData.filter(
         (food) =>
@@ -106,11 +110,12 @@ export default function FoodList({
       );
 
       setFoodData([
-        ...filtered,
         ...data.filter((food) =>
           food.foodName.toLowerCase().includes(e.target.value.toLowerCase()),
         ),
+        ...filtered,
       ]);
+      setFoodCount(25);
     } else if (e.target.value) {
       setFoodData(
         data.filter((food) =>

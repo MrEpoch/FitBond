@@ -9,15 +9,44 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { Info, Trash } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { deleteFoodFromDay } from "@/lib/actions/DailyWriteAction";
 
-export default function FoodInfoModal({ food }: { food: any }) {
+export default function FoodInfoModal({ food, id }: { food: any; id: string }) {
   const [showingModal, setShowingModal] = React.useState(false);
+  const { toast } = useToast();
 
   function hideModal() {
     setShowingModal(false);
   }
 
-  async function deleteFoodFromDayIntake() {}
+  async function deleteFoodFromDayIntake() {
+    try {
+      const deleted = await deleteFoodFromDay(id);
+      if (!deleted || deleted.error) {
+        console.log(deleted);
+        toast({
+          title: "Error",
+          description: "Something went wrong",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Food deleted successfully",
+        variant: "default",
+      });
+    } catch (e) {
+      console.log(e);
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        variant: "destructive",
+      });
+    }
+  }
 
   return (
     <Dialog onOpenChange={setShowingModal} open={showingModal}>

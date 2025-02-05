@@ -1,5 +1,3 @@
-import DashboardActivityModal from "@/components/shared/DashboardActivityModal";
-import DashboardFoodModal from "@/components/shared/DashboardFoodModal";
 import { getUserHealth } from "@/lib/actions/UserHealthActions";
 import { getCurrentSession } from "@/lib/sessionTokens";
 import { redirect } from "next/navigation";

@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { food, userHealthInfo } from "@/db/schema";
-import { and, eq, ilike, like } from "drizzle-orm";
+import { and, asc, eq, ilike, like, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentSession } from "../sessionTokens";
@@ -291,15 +291,18 @@ export async function getFoods(count = 25, offset = 0, orderBy = "date") {
 
 export async function foodSearch(query: string, limit = 25, offset = 0) {
   try {
-    const queryValidation = z.string().min(3).max(255).safeParse(query);
+    const queryValidation = z.string().max(255).safeParse(query);
 
     if (!queryValidation.success) {
       return { error: "Invalid data", code: 400 };
     }
 
+    const querySplited = queryValidation.data.toLowerCase().split(" ");
+
     const foods = await db.query.food.findMany({
       where: (foodName) =>
-        ilike(foodName.foodName, `%${queryValidation.data}%`),
+        and(...querySplited.map((q) => ilike(foodName.foodName, `%${q}%`))),
+      orderBy: [asc(food.createdAt)],
       columns: {
         id: true,
         foodName: true,

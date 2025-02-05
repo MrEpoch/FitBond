@@ -41,7 +41,6 @@ export function TwoFactorSetUpForm({ encodedTOTPKey }) {
       }),
     });
     const twoFactorRes = await twoFactor.json();
-    console.log(twoFactorRes);
     if (twoFactorRes.success) {
       console.log("Success", twoFactorRes);
       setRecoveryCode(twoFactorRes.recoveryCode);

@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
     });
 
     const data = await request.json();
-    console.log(data);
     const validated = zodValidated.safeParse(data);
     if (!validated.success) {
       return NextResponse.json({ success: false, error: "BAD_REQUEST" });

@@ -66,7 +66,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log(data);
 
     const dataValidation = z.object({
       code: z.string().min(1),

@@ -21,7 +21,6 @@ export function PasswordResetForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchemaPassword>) {
-    console.log(values);
     const password = await fetch("/api/auth/reset-password", {
       method: "POST",
       headers: {
@@ -36,7 +35,6 @@ export function PasswordResetForm() {
     if (passwordResponse.redirect) router.push(passwordResponse.redirect);
     {
       if (passwordResponse.success) {
-        console.log("Success", passwordResponse);
         router.push("/auth/settings");
       }
     }
@@ -90,7 +88,6 @@ export function PasswordResetTOTPForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchemaCode>) {
-    console.log(values);
     const password = await fetch("/api/auth/reset-password/2fa/totp-reset", {
       method: "POST",
       headers: {
@@ -138,7 +135,6 @@ export function PasswordResetRecoveryCodeForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchemaCode>) {
-    console.log(values);
     const password = await fetch(
       "/api/auth/reset-password/2fa/2fa-with-recovery-code",
       {

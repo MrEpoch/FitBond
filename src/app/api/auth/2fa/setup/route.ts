@@ -79,7 +79,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log(data);
 
     const dataValidation = z.object({
       key: z.string().length(28),
@@ -106,7 +105,6 @@ export async function POST(request: NextRequest) {
     if (!totpUpdateBucket.consume(user.id, 1)) {
       return NextResponse.json({ success: false, error: "TOO_MANY_REQUESTS" });
     }
-    console.log(validateData.data.code);
     if (!verifyTOTP(key, 30, 6, validateData.data.code)) {
       return NextResponse.json({ success: false, error: "INVALID_CODE" });
     }

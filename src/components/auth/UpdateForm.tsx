@@ -41,7 +41,6 @@ export function PasswordUpdateForm() {
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof formSchemaPassword>) {
-    console.log(values);
     const password = await fetch("/api/auth/settings/update-password", {
       method: "POST",
       headers: {
@@ -100,7 +99,6 @@ export function EmailUpdateForm() {
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof formSchemaEmail>) {
-    console.log(values);
     const email = await fetch("/api/auth/settings/update-email", {
       method: "POST",
       headers: {

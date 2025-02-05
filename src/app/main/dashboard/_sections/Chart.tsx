@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import { PolarGrid, RadialBar, RadialBarChart } from "recharts";
+import { PolarAngleAxis, PolarGrid, RadialBar, RadialBarChart } from "recharts";
 
 import {
   Card,
@@ -103,44 +103,58 @@ export default function ChartHealth({
   dayNutrients,
   date,
   foodData,
+  animating,
 }) {
   const [showingModal, setShowingModal] = React.useState(false);
+  const [selectedNutrientType, setSelectedNutrientType] =
+    React.useState<string>("");
 
   return (
-    <Card className="flex flex-col border-hidden shadow-lg bg-main-background-100">
+    <Card
+      className={
+        "flex transition flex-col border-hidden shadow-lg bg-main-background-100 " +
+        (animating ? "" : "")
+      }
+    >
       <CardHeader className="items-center pb-0">
         <CardTitle>Your daily nutrients</CardTitle>
-        <CardDescription>{date}</CardDescription>
+        <CardDescription>{new Date(date).toLocaleDateString()}</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
+        <FoodsDisplayList
+          foodsData={foodData}
+          showingModal={showingModal}
+          nutrientType={selectedNutrientType}
+          setShowingModal={setShowingModal}
+        />
+
         <ChartContainer
           config={nutrientChartConfig}
           className="mx-auto aspect-square max-h-[250px]"
         >
           <RadialBarChart
-            fill="#fff"
             data={getNutrientInfo(caloriesGoal, fitnessGoal, dayNutrients)}
             innerRadius={30}
-            onClick={() => setShowingModal(true)}
             outerRadius={100}
+            onClick={(e) => {
+              if (e?.activePayload && e?.activePayload.length > 0) {
+                setSelectedNutrientType(e?.activePayload[0].payload.nutrient);
+                setShowingModal(true);
+              }
+            }}
           >
             <ChartTooltip
               cursor={false}
-              content={(v) => (
-                <>
-                  <FoodsDisplayList
-                    foodsData={foodData}
-                    showingModal={showingModal}
-                    nutrientType={() => {
-                      console.log(v);
-                    }}
-                    setShowingModal={setShowingModal}
-                  />
-                  <ChartTooltipContentNutrients hideLabel nameKey="nutrient" />
-                </>
-              )}
+              content={
+                <ChartTooltipContentNutrients hideLabel nameKey="nutrient" />
+              }
             />
-            <PolarGrid gridType="circle" />
+            <PolarAngleAxis
+              type="number"
+              domain={[0, 10]}
+              angleAxisId={0}
+              tick={false}
+            />
             <RadialBar background dataKey="chart" />
           </RadialBarChart>
         </ChartContainer>
