@@ -12,6 +12,7 @@ import DashboardActivityModal from "@/components/shared/DashboardActivityModal";
 import DashboardFoodModal from "@/components/shared/DashboardFoodModal";
 import { Anton } from "next/font/google";
 import FoodInfoModal from "@/components/shared/FoodInfoModal";
+import { useFoodDay } from "@/components/shared/FoodDayContext";
 
 export default function ChartCarousel({
   daysHealth,
@@ -20,14 +21,15 @@ export default function ChartCarousel({
 }) {
   const [daysHealthIndex, setDaysHealthIndex] = React.useState(50);
   const [daysNutrients, setDaysNutrients] = React.useState([]);
-  const [days, setDays] = React.useState([]);
+  const { days, setDays } = useFoodDay();
 
   useEffect(() => {
-    const daysWithDates = generateAndFillDates(daysHealth);
-    setDays(daysWithDates);
-    setDaysNutrients(prepareNutrients(daysWithDates));
+    setDays(generateAndFillDates(daysHealth));
   }, []);
-  console.log(days[daysHealthIndex]);
+
+  useEffect(() => {
+    setDaysNutrients(prepareNutrients(days));
+  }, [days]);
 
   const [isAnimating, setIsAnimating] = React.useState(false);
 
@@ -87,7 +89,8 @@ export default function ChartCarousel({
               <div className="flex px-6 h-full justify-between items-center w-full gap-2">
                 {days[daysHealthIndex]?.breakfast.map((food, i) => (
                   <FoodListItem
-                    id={days[daysHealthIndex]?.foodTimedId}
+                  daysHealthIndex={daysHealthIndex}
+                  foodTime="breakfast"
                     key={i}
                     food={food}
                   />
@@ -104,7 +107,8 @@ export default function ChartCarousel({
               <div className="flex px-6 h-full justify-between items-center w-full gap-2">
                 {days[daysHealthIndex]?.firstSnack.map((food, i) => (
                   <FoodListItem
-                    id={days[daysHealthIndex]?.foodTimedId}
+                  daysHealthIndex={daysHealthIndex}
+                  foodTime="firstSnack"
                     food={food}
                     key={i}
                   />
@@ -121,7 +125,8 @@ export default function ChartCarousel({
               <div className="flex px-6 h-full justify-between items-center w-full gap-2">
                 {days[daysHealthIndex]?.lunch.map((food, i) => (
                   <FoodListItem
-                    id={days[daysHealthIndex]?.foodTimedId}
+                  daysHealthIndex={daysHealthIndex}
+                  foodTime="lunch"
                     food={food}
                     key={i}
                   />
@@ -138,7 +143,8 @@ export default function ChartCarousel({
               <div className="flex px-6 h-full justify-between items-center w-full gap-2">
                 {days[daysHealthIndex]?.secondSnack.map((food, i) => (
                   <FoodListItem
-                    id={days[daysHealthIndex]?.foodTimedId}
+                  daysHealthIndex={daysHealthIndex}
+                  foodTime="secondSnack"
                     food={food}
                     key={i}
                   />
@@ -155,7 +161,8 @@ export default function ChartCarousel({
               <div className="flex px-6 h-full justify-between items-center w-full gap-2">
                 {days[daysHealthIndex]?.dinner.map((food, i) => (
                   <FoodListItem
-                    id={days[daysHealthIndex]?.foodTimedId}
+                  daysHealthIndex={daysHealthIndex}
+                  foodTime="dinner"
                     food={food}
                     key={i}
                   />
@@ -172,7 +179,8 @@ export default function ChartCarousel({
               <div className="flex px-6 h-full justify-between items-center w-full gap-2">
                 {days[daysHealthIndex]?.secondDinner.map((food, i) => (
                   <FoodListItem
-                    id={days[daysHealthIndex]?.foodTimedId ?? ""}
+                  daysHealthIndex={daysHealthIndex}
+                  foodTime="secondDinner"
                     food={food}
                     key={i}
                   />
@@ -186,13 +194,13 @@ export default function ChartCarousel({
   );
 }
 
-function FoodListItem({ food, id }) {
+function FoodListItem({ food, daysHealthIndex, foodTime }) {
   return (
     <li className="flex justify-between py-4 items-center w-full gap-2 text-main-text-200 p-4">
       <span>{food.foodName}</span>
       <div className="flex gap-2 items-center">
         <span>{food.calories100G * food.size} kcal</span>
-        <FoodInfoModal id={id} food={food} />
+        <FoodInfoModal daysHealthIndex={daysHealthIndex} foodTime={foodTime} food={food} />
       </div>
     </li>
   );

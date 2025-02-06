@@ -11,10 +11,12 @@ import { Button } from "../ui/button";
 import { Info, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { deleteFoodFromDay } from "@/lib/actions/DailyWriteAction";
+import { useFoodDay } from "./FoodDayContext";
 
-export default function FoodInfoModal({ food, id }: { food: any; id: string }) {
+export default function FoodInfoModal({ food, daysHealthIndex, foodTime }: { food: any; daysHealthIndex: number; foodTime: string }) {
   const [showingModal, setShowingModal] = React.useState(false);
   const { toast } = useToast();
+  const { days, setDays } = useFoodDay();
 
   function hideModal() {
     setShowingModal(false);
@@ -22,9 +24,8 @@ export default function FoodInfoModal({ food, id }: { food: any; id: string }) {
 
   async function deleteFoodFromDayIntake() {
     try {
-      const deleted = await deleteFoodFromDay(id);
+      const deleted = await deleteFoodFromDay(food.foodTimedId);
       if (!deleted || deleted.error) {
-        console.log(deleted);
         toast({
           title: "Error",
           description: "Something went wrong",
@@ -38,6 +39,19 @@ export default function FoodInfoModal({ food, id }: { food: any; id: string }) {
         description: "Food deleted successfully",
         variant: "default",
       });
+
+      setDays(
+        days.map((day: any, index: number) => {
+          if (index === daysHealthIndex) {
+            return {
+              ...day,
+              [foodTime]: day[foodTime].filter((f: any) => f.foodTimedId !== food.foodTimedId),
+            };
+          }
+          return day;
+        }))
+      hideModal();
+
     } catch (e) {
       console.log(e);
       toast({

@@ -23,17 +23,11 @@ export default function FoodDayProvider({
 }: {
   children: React.ReactNode;
 }) {
-  function updateTheme(theme: any) {
-    setCurrentTheme(theme);
-  }
-
-  function updateEditMode(editMode: boolean) {
-    setEditMode(editMode);
-  }
+  const [days, setDays] = useState([]);
 
   return (
     <FoodDayContext.Provider
-      value={{ currentTheme, updateTheme, editMode, updateEditMode }}
+      value={{ days, setDays }}
     >
       {children}
     </FoodDayContext.Provider>

@@ -9,7 +9,6 @@ export function generateAndFillDates(inputData = []) {
     const date = new Date(currentDate);
     date.setDate(date.getDate() - i);
     const dateString = date.toISOString().split("T")[0];
-    console.log(dateString);
     if (!inputDates.has(dateString)) {
       result.push({
         dayDate: dateString,
@@ -58,8 +57,6 @@ export function generateAndFillDates(inputData = []) {
 }
 
 export function prepareNutrientList(inputData = {}) {
-  console.log(inputData);
-
   if (!inputData.breakfast) {
     return {
       fats: [],

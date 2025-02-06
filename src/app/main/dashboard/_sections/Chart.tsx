@@ -164,8 +164,8 @@ export default function ChartHealth({
           {dayNutrients.calories} / {caloriesGoal}
         </div>
         <div className="leading-none text-muted-foreground">
-          {dayNutrients.protein}g protein / {dayNutrients.fat}g fat /{" "}
-          {dayNutrients.carbs}g carbs
+          {dayNutrients.protein.toFixed(2)}g protein / {dayNutrients.fat.toFixed(2)}g fat /{" "}
+          {dayNutrients.carbs.toFixed(2)}g carbs
         </div>
       </CardFooter>
     </Card>

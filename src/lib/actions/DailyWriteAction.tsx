@@ -90,8 +90,11 @@ export async function createDailyWrite(formData: FormData, foodTime: string) {
     if (foodTimed.length === 0) {
       return { error: "Food timed not found", code: 404 };
     }
+
+    let data;
+
     if (doesDayExist.length > 0) {
-      await db
+      data = await db
         .update(dailyHealthInfo)
         .set({
           [foodTimeValidation.data as keyof (typeof doesDayExist)[0]]: [
@@ -108,7 +111,7 @@ export async function createDailyWrite(formData: FormData, foodTime: string) {
           ),
         );
     } else {
-      await db.insert(dailyHealthInfo).values({
+      data = await db.insert(dailyHealthInfo).values({
         userHealthId: userHealth[0].id,
         dayDate: dayDate,
         [foodTimeValidation.data as keyof (typeof doesDayExist)[0]]: [
@@ -118,8 +121,12 @@ export async function createDailyWrite(formData: FormData, foodTime: string) {
     }
 
     revalidatePath("/main/dashboard");
-
     return {
+      data: { 
+        ...getFood[0],
+        foodTimedId: foodTimed[0].id,
+        size: foodTimed[0].foodSize,
+      },
       success: "Daily write created",
       code: 200,
     };
@@ -137,12 +144,10 @@ export async function deleteFoodFromDay(id: string) {
       return { error: "Unauthorized", code: 401 };
     }
 
-    console.log("id", id);
     const id_val = z.string().max(36).safeParse(id);
     if (!id_val.success) {
       return { error: "Invalid data", code: 400 };
     }
-    console.log(id);
 
     const deletedFoodTime = await db
       .delete(foodTimedTable)
@@ -199,30 +204,6 @@ export async function deleteFoodFromDay(id: string) {
   }
 }
 
-export async function getActivity(id: string) {
-  try {
-    const { session, user } = await getCurrentSession();
-
-    if (!user || !session) {
-      return { error: "Unauthorized", code: 401 };
-    }
-
-    const id_val = z.string().max(36).safeParse(id);
-
-    if (!id_val.success) {
-      return { error: "Invalid data", code: 400 };
-    }
-
-    const one_activity = await db
-      .select()
-      .from(activity)
-      .where(and(eq(activity.id, id_val.data), eq(activity.userId, user.id)));
-
-    return one_activity;
-  } catch (e) {
-    return { error: "Server error", code: 500 };
-  }
-}
 
 export async function getDaysHealth(count = 100, offset = 0) {
   try {
@@ -340,8 +321,6 @@ export async function getDaysHealth(count = 100, offset = 0) {
         .map((id) => foodTimeMap.get(id))
         .filter(Boolean),
     }));
-
-    daysHealthWithFoods.map((item) => console.log(item));
 
     return daysHealthWithFoods;
   } catch (e) {

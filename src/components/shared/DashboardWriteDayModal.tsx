@@ -44,7 +44,7 @@ export default function DashboardWriteDayModal({
           <DialogTitle>{foodTime}</DialogTitle>
         </DialogHeader>
         <div className="h-full p-4">
-          <FoodList foodTime={foodTime} dayDate={dayDate} data={foodData} />
+          <FoodList closeModal={hideModal} foodTime={foodTime} dayDate={dayDate} data={foodData} />
         </div>
       </DialogContent>
     </Dialog>

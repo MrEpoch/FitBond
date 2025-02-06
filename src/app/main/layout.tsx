@@ -1,3 +1,4 @@
+import FoodDayProvider from "@/components/shared/FoodDayContext";
 import { getCurrentSession } from "@/lib/sessionTokens";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -19,5 +20,9 @@ export default async function layout({ children }) {
     return redirect("/auth/2fa");
   }
 
-  return <>{children}</>;
+  return (
+    <FoodDayProvider>
+      {children}
+    </FoodDayProvider>
+  )
 }

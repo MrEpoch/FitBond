@@ -5,6 +5,8 @@ import { Input } from "../ui/input";
 import { foodSearch } from "@/lib/actions/FoodActions";
 import { Button } from "../ui/button";
 import { createDailyWrite } from "@/lib/actions/DailyWriteAction";
+import { useFoodDay } from "./FoodDayContext";
+import { useToast } from "@/hooks/use-toast";
 
 const rowNames = [
   "Food Name",
@@ -33,16 +35,20 @@ export default function FoodList({
   data,
   dayDate,
   foodTime,
+  closeModal,
 }: {
   data: food[];
   dayDate: string;
   foodTime: string;
+  closeModal: () => void;
 }) {
   const [foodInfo, setFoodInfo] = React.useState<food | null>(null);
   const [foodData, setFoodData] = React.useState<food[]>(data);
   const [foodSize, setFoodSize] = React.useState(0);
   const [filteredSearch, setFilteredSearch] = React.useState<string>("");
   const [foodCount, setFoodCount] = React.useState(25);
+  const { days, setDays } = useFoodDay();
+  const { toast } = useToast();
 
   async function addFoodIntoDay(id: string) {
     try {
@@ -54,10 +60,38 @@ export default function FoodList({
       const addedFood = await createDailyWrite(formData, foodTime);
 
       if (!addedFood || addedFood.error) {
-        console.log("Error adding food into day", addedFood.error);
+        toast({
+          title: "Error",
+          description: "Something went wrong",
+          variant: "destructive",
+        })
         return;
       }
+
+      toast({
+        title: "Success",
+        description: "Food added successfully",
+        variant: "default",
+      });
+
+      setDays(
+        days.map((day: any) => {
+          if (day.dayDate === dayDate) {
+            return {
+              ...day,
+              [foodTime]: [...day[foodTime], addedFood.data],
+            };
+          }
+          return day;
+        })
+      );
+      closeModal();
     } catch (e) {
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        variant: "destructive",
+      })
       console.log(e);
     }
   }
@@ -73,55 +107,65 @@ export default function FoodList({
         return;
       }
 
-      console.log(searchedFoodData, foodData);
-
       const filtered = searchedFoodData.filter(
         (food) =>
           foodData.filter((foodLoaded) => food.id === foodLoaded.id).length ===
           0,
       );
 
-      console.log(filtered, foodData);
-
       setFoodData([...foodData, ...filtered]);
       setFoodInfo(null);
 
       setFoodCount(foodCount + filtered.length);
     } catch (e) {
+      toast({
+        title: "Error",
+        description: "Searching failed",
+        variant: "destructive",
+      })
       console.log(e);
     }
   }
 
   async function filterData(e) {
-    if (e.target.value && e.target.value.length > 3) {
-      const searchedFoodData = await debounce(
-        await foodSearch(e.target.value),
-        500,
-      );
-      if (!searchedFoodData || searchedFoodData.error) {
-        return;
+    try {
+      if (e.target.value && e.target.value.length > 3) {
+        const searchedFoodData = await debounce(
+          await foodSearch(e.target.value),
+          500,
+        );
+        if (!searchedFoodData || searchedFoodData.error) {
+          return;
+        }
+        setFilteredSearch(e.target.value);
+
+        const filtered = searchedFoodData.filter(
+          (food) =>
+            foodData.filter((foodLoaded) => food.id !== foodLoaded.id).length ===
+            0,
+        );
+
+        setFoodData([
+          ...data.filter((food) =>
+            food.foodName.toLowerCase().includes(e.target.value.toLowerCase()),
+          ),
+          ...filtered,
+        ]);
+        setFoodCount(25);
+      } else if (e.target.value) {
+        setFoodData(
+          data.filter((food) =>
+            food.foodName.toLowerCase().includes(e.target.value.toLowerCase()),
+          ),
+        );
       }
-      setFilteredSearch(e.target.value);
-
-      const filtered = searchedFoodData.filter(
-        (food) =>
-          foodData.filter((foodLoaded) => food.id !== foodLoaded.id).length ===
-          0,
-      );
-
-      setFoodData([
-        ...data.filter((food) =>
-          food.foodName.toLowerCase().includes(e.target.value.toLowerCase()),
-        ),
-        ...filtered,
-      ]);
-      setFoodCount(25);
-    } else if (e.target.value) {
-      setFoodData(
-        data.filter((food) =>
-          food.foodName.toLowerCase().includes(e.target.value.toLowerCase()),
-        ),
-      );
+    } catch (e) {
+      toast({
+        title: "Error",
+        description: "Searching failed",
+        variant: "destructive",
+      })
+      console.log(e);
     }
   }
 
