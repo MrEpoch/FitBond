@@ -24,23 +24,25 @@ export default function FoodsDisplayList({
           <ul className="flex flex-col gap-2 rounded p-4">
             {nutrientType.length > 0 &&
               foodsData[nutrientType] &&
-              foodsData[nutrientType].filter((food) => food[nutrientType] > 0).map((food, i) => (
-                <li
-                  key={i}
-                  className="shadow-lg bg-main-background-200 flex justify-between py-4 items-center w-full gap-2 rounded p-4"
-                >
-                  <span>{food.foodName}</span>
-                  <span>
-                    {food[nutrientType]}{" "}
-                    {nutrientType === "protein"
-                      ? "Proteins"
-                      : nutrientType === "fat"
-                        ? "Fats"
-                        : "Carbohydrates"}{" "}
-                    g
-                  </span>
-                </li>
-              ))}
+              foodsData[nutrientType]
+                .filter((food) => food[nutrientType] > 0)
+                .map((food, i) => (
+                  <li
+                    key={i}
+                    className="shadow-lg bg-main-background-200 flex justify-between py-4 items-center w-full gap-2 rounded p-4"
+                  >
+                    <span>{food.foodName}</span>
+                    <span>
+                      {food[nutrientType]}{" "}
+                      {nutrientType === "protein"
+                        ? "Proteins"
+                        : nutrientType === "fat"
+                          ? "Fats"
+                          : "Carbohydrates"}{" "}
+                      g
+                    </span>
+                  </li>
+                ))}
           </ul>
         </div>
       </DialogContent>

@@ -64,7 +64,7 @@ export default function FoodList({
           title: "Error",
           description: "Something went wrong",
           variant: "destructive",
-        })
+        });
         return;
       }
 
@@ -83,7 +83,7 @@ export default function FoodList({
             };
           }
           return day;
-        })
+        }),
       );
       closeModal();
     } catch (e) {
@@ -91,7 +91,7 @@ export default function FoodList({
         title: "Error",
         description: "Something went wrong",
         variant: "destructive",
-      })
+      });
       console.log(e);
     }
   }
@@ -122,7 +122,7 @@ export default function FoodList({
         title: "Error",
         description: "Searching failed",
         variant: "destructive",
-      })
+      });
       console.log(e);
     }
   }
@@ -141,8 +141,8 @@ export default function FoodList({
 
         const filtered = searchedFoodData.filter(
           (food) =>
-            foodData.filter((foodLoaded) => food.id !== foodLoaded.id).length ===
-            0,
+            foodData.filter((foodLoaded) => food.id !== foodLoaded.id)
+              .length === 0,
         );
 
         setFoodData([
@@ -164,7 +164,7 @@ export default function FoodList({
         title: "Error",
         description: "Searching failed",
         variant: "destructive",
-      })
+      });
       console.log(e);
     }
   }

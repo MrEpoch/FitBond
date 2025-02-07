@@ -122,7 +122,7 @@ export async function createDailyWrite(formData: FormData, foodTime: string) {
 
     revalidatePath("/main/dashboard");
     return {
-      data: { 
+      data: {
         ...getFood[0],
         foodTimedId: foodTimed[0].id,
         size: foodTimed[0].foodSize,
@@ -203,7 +203,6 @@ export async function deleteFoodFromDay(id: string) {
     return { error: "Server error", code: 500 };
   }
 }
-
 
 export async function getDaysHealth(count = 100, offset = 0) {
   try {

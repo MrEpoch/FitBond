@@ -26,9 +26,7 @@ export default function FoodDayProvider({
   const [days, setDays] = useState([]);
 
   return (
-    <FoodDayContext.Provider
-      value={{ days, setDays }}
-    >
+    <FoodDayContext.Provider value={{ days, setDays }}>
       {children}
     </FoodDayContext.Provider>
   );

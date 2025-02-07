@@ -13,7 +13,15 @@ import { useToast } from "@/hooks/use-toast";
 import { deleteFoodFromDay } from "@/lib/actions/DailyWriteAction";
 import { useFoodDay } from "./FoodDayContext";
 
-export default function FoodInfoModal({ food, daysHealthIndex, foodTime }: { food: any; daysHealthIndex: number; foodTime: string }) {
+export default function FoodInfoModal({
+  food,
+  daysHealthIndex,
+  foodTime,
+}: {
+  food: any;
+  daysHealthIndex: number;
+  foodTime: string;
+}) {
   const [showingModal, setShowingModal] = React.useState(false);
   const { toast } = useToast();
   const { days, setDays } = useFoodDay();
@@ -45,13 +53,15 @@ export default function FoodInfoModal({ food, daysHealthIndex, foodTime }: { foo
           if (index === daysHealthIndex) {
             return {
               ...day,
-              [foodTime]: day[foodTime].filter((f: any) => f.foodTimedId !== food.foodTimedId),
+              [foodTime]: day[foodTime].filter(
+                (f: any) => f.foodTimedId !== food.foodTimedId,
+              ),
             };
           }
           return day;
-        }))
+        }),
+      );
       hideModal();
-
     } catch (e) {
       console.log(e);
       toast({

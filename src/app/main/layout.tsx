@@ -20,9 +20,5 @@ export default async function layout({ children }) {
     return redirect("/auth/2fa");
   }
 
-  return (
-    <FoodDayProvider>
-      {children}
-    </FoodDayProvider>
-  )
+  return <FoodDayProvider>{children}</FoodDayProvider>;
 }

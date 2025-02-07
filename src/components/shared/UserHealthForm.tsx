@@ -406,13 +406,13 @@ export function UserHealthForm() {
         <div className="flex gap-4 sm:flex-row flex-col">
           <Button
             onClick={calculateCalories}
-            className="bg-main-background-300 px-10 font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-md shadow"
+            className="bg-main-background-300 px-10 font-medium border py-5 text-main-text-100 hover:bg-transparent hover:border-main-100 hover:border rounded-[--radius] text-md shadow"
             type="button"
           >
             Count calories
           </Button>
           <Button
-            className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 text-main-text-100 hover:bg-transparent hover:text-black hover:border-main-100 hover:border rounded-[--radius] text-md shadow`}
+            className={`bg-main-background-300 px-10 ${museoModerno.className} font-medium border py-5 text-main-text-100 hover:bg-transparent hover:border-main-100 hover:border rounded-[--radius] text-md shadow`}
             type="submit"
           >
             Write health
